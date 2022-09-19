@@ -20,20 +20,17 @@ export const SPEED_LIMIT_THRESHOLDS = {
     {
       maxSpeed: 36,
       description: (speed: number) =>
-        `Suurin ylinopeus ${calculateSpeeding(speed, 30)} (${percentageOverSpeedLimit(speed, 30)})`
+        `Suurin ylinopeus ${calculateSpeeding(speed, 30)} (${percentageOverSpeedLimit(speed, 30)}) ☹️`
     },
     {
       maxSpeed: 40,
       description: (speed: number) =>
-        `Suurin ylinopeus ${calculateSpeeding(speed, 30)} km/h (${percentageOverSpeedLimit(speed, 30)}). @HSL_HRT`
+        `Suurin ylinopeus ${calculateSpeeding(speed, 30)} (${percentageOverSpeedLimit(speed, 30)}). 😠`
     },
     {
       maxSpeed: 999,
       description: (speed: number) =>
-        `Suurin ylinopeus ${calculateSpeeding(speed, 30)} (${percentageOverSpeedLimit(
-          speed,
-          30
-        )}). @HSL_HRT @HelsinkiPoliisi`
+        `Suurin ylinopeus ${calculateSpeeding(speed, 30)} (${percentageOverSpeedLimit(speed, 30)}). 😡`
     }
   ]
 };
