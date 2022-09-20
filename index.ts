@@ -188,7 +188,7 @@ mqttClient.on("message", (topic: string, message: string) => {
     longitude: event.long,
     timestamp: event.tsi,
     speed: kilometersPerHour,
-    direction: event.dir
+    direction: event.hdg
   });
 
   console.log(
