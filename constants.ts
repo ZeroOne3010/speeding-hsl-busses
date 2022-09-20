@@ -15,8 +15,8 @@ const calculateSpeeding = (speed: number, speedLimit: number): string => {
 
 export const SPEED_LIMIT_THRESHOLDS = {
   30: [
-    { maxSpeed: 30, description: (speed: number) => "Ei ylinopeutta." },
-    { maxSpeed: 33, description: (speed: number) => "Pysyi suunnilleen nopeusrajoituksessa." },
+    { maxSpeed: 30, description: (speed: number) => "Ei ylinopeutta. 😊" },
+    { maxSpeed: 33, description: (speed: number) => "Pysyi suunnilleen nopeusrajoituksessa. 🙂" },
     {
       maxSpeed: 36,
       description: (speed: number) =>
