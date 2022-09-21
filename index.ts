@@ -74,7 +74,10 @@ mqttClient.on("connect", async function () {
     const maxObservedSpeed: Observation = vehicleData.observations.reduce((prev, curr) =>
       curr.speed > prev.speed ? curr : prev
     );
-    console.log(`Max observed speed for ${vehicleData.line}: `, maxObservedSpeed);
+    console.log(
+      `Max observed speed for ${vehicleData.line}, based on ${vehicleData.observations.length} observations: `,
+      maxObservedSpeed
+    );
 
     const thresholds = SPEED_LIMIT_THRESHOLDS[SPEED_LIMIT_KPH];
     let description: string = "";
@@ -201,7 +204,7 @@ mqttClient.on("message", (topic: string, message: string) => {
       kilometersPerHour +
       " km/h" +
       "; " +
-      (OPERATORS[event.oper]?.name || "N/A") +
+      (OPERATORS[event.oper]?.name || `N/A ("${event.oper}")`) +
       " vehicle " +
       event.veh
   );
