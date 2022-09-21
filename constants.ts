@@ -13,24 +13,26 @@ const calculateSpeeding = (speed: number, speedLimit: number): string => {
   return Math.round((speed - speedLimit) * 10) / 10 + " km/h";
 };
 
+const speedToEmotion = (speed: number): string => {
+  if (speed <= 30) return "😊";
+  if (speed <= 33) return "🙂";
+  if (speed <= 36) return "☹️";
+  if (speed <= 40) return "😠";
+  if (speed <= 45) return "😡";
+  if (speed <= 50) return "😡😡";
+  return "😡😡😡";
+};
+
 export const SPEED_LIMIT_THRESHOLDS = {
   30: [
-    { maxSpeed: 30, description: (speed: number) => "Ei ylinopeutta. 😊" },
-    { maxSpeed: 33, description: (speed: number) => "Pysyi suunnilleen nopeusrajoituksessa. 🙂" },
-    {
-      maxSpeed: 36,
-      description: (speed: number) =>
-        `Suurin ylinopeus ${calculateSpeeding(speed, 30)} (${percentageOverSpeedLimit(speed, 30)}) ☹️`
-    },
-    {
-      maxSpeed: 40,
-      description: (speed: number) =>
-        `Suurin ylinopeus ${calculateSpeeding(speed, 30)} (${percentageOverSpeedLimit(speed, 30)}). 😠`
-    },
+    { maxSpeed: 30, description: (speed: number) => `Ei ylinopeutta. ${speedToEmotion(speed)}` },
+    { maxSpeed: 33, description: (speed: number) => `Pysyi suunnilleen nopeusrajoituksessa. ${speedToEmotion(speed)}` },
     {
       maxSpeed: 999,
       description: (speed: number) =>
-        `Suurin ylinopeus ${calculateSpeeding(speed, 30)} (${percentageOverSpeedLimit(speed, 30)}). 😡`
+        `Suurin ylinopeus ${calculateSpeeding(speed, 30)} (${percentageOverSpeedLimit(speed, 30)}). ${speedToEmotion(
+          speed
+        )}`
     }
   ]
 };
