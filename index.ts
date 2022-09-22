@@ -92,6 +92,7 @@ mqttClient.on("connect", async function () {
    * Triggers a handler function for them and removes them from the list.
    */
   const bygoneVehicleCheck = (): void => {
+    const currentTimestamp = Math.round(Date.now() / 1000);
     Object.keys(vehicles).forEach((key) => {
       const vehicleData: VehicleData = vehicles[key];
       const lastIndex = vehicleData?.observations?.length - 1;
@@ -99,14 +100,15 @@ mqttClient.on("connect", async function () {
       if (!lastMeasurement) {
         return;
       }
-      const currentTimestamp = Math.round(Date.now() / 1000);
       const secondsSinceObservation = currentTimestamp - lastMeasurement.timestamp;
       if (secondsSinceObservation > BYGONE_VEHICLE_THRESHOLD) {
         handleFinishedVehicle(vehicleData);
         delete vehicles[key];
       }
     });
-    console.debug(Date.now());
+    if (currentTimestamp % 100 === 0 || currentTimestamp % 100 === 99) {
+      console.debug(" <3 Heartbeat: it's " + currentTimestamp + ", I'm still alive.");
+    }
   };
 
   mqttClient.subscribe(
