@@ -1,16 +1,6 @@
-import { Event, VehiclePositionMessage, VehicleData, Observation, StaticDirectionInfo } from "./types";
+import { VehiclePositionMessage, VehicleData, Observation, StaticDirectionInfo } from "./types";
 import { TwitterApi } from "twitter-api-v2";
-import {
-  bearerToken,
-  appKey,
-  appSecret,
-  accessToken,
-  accessSecret,
-  consumerToken,
-  consumerSecret,
-  clientId,
-  clientSecret
-} from "./secrets";
+import { appKey, appSecret, accessToken, accessSecret } from "./secrets";
 import { setInterval } from "timers";
 import {
   SPEED_LIMIT_KPH,
@@ -42,9 +32,9 @@ const mpsToKph = (mps: number): number => {
 };
 
 /**
- * Visualizes the given angle as an arrow.
+ * Returns a descriptive object for the given compass angle.
  * @param angle Any compass angle, between 0 and 360.
- * @returns An arrow symbol that most closely represents the given angle.
+ * @returns A direction info object with an arrow and a textual description for the given compass bearing.
  */
 const getDirectionForCompassAngle = (angle: number): StaticDirectionInfo => {
   return DIRECTIONS[Math.floor(((angle % 360) + 22.5) / 45)];
@@ -58,8 +48,6 @@ mqttClient.on("connect", async function () {
     accessToken: accessToken,
     accessSecret: accessSecret
   });
-  // const tweet = await twitterClient.v2.tweet("Hello, this is a test.");
-  // console.log("Tweeted: ", tweet);
 
   /**
    * Handles the case when a vehicle has left the observed area.
@@ -205,17 +193,19 @@ mqttClient.on("message", (topic: string, message: string) => {
       " km/h" +
       "; " +
       (OPERATORS[event.oper]?.name || `N/A ("${event.oper}")`) +
-      " vehicle " +
+      ", auto " +
       event.veh
   );
-  //   client.end
 });
 
 /*
 
-https://bussitutka.fi/map?mode=route&route=1069
-https://bussitutka.fi/map?mode=route&route=1061
+These two stops can be used to monitor the relevant bus traffic north and south:
 
+https://bussitutka.fi/map?mode=stop&stop=H3187
+https://bussitutka.fi/map?mode=stop&stop=H3188
+
+About the MQTT topic format:
 
  1        2         3              4               5            6 
 /<prefix>/<version>/<journey_type>/<temporal_type>/<event_type>/<transport_mode>
@@ -227,29 +217,4 @@ Geohash: (60.123, 24.789) becomes 60;24/17/28/39
 
    1   2  3       4       5  6   7 8 9 0 1 2 3 4 15             
  "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/31/#"
- "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/32/#"
- "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/33/#"
- "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/34/#"
- "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/35/#"
- "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/41/#"
- "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/42/#"
- "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/43/#"
- "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/44/#"
- "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/45/#"
- "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/51/#"
- "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/52/#"
- "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/53/#"
- "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/54/#"
- "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/55/#"
- "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/61/#"
- "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/62/#"
- "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/63/#"
- "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/64/#"
- "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/65/#"
- "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/71/#"
- "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/72/#"
- "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/73/#"
- "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/74/#"
- "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/75/#"
-
  */

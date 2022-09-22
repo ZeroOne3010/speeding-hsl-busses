@@ -68,6 +68,7 @@ export const DIRECTIONS: StaticDirectionInfo[] = [
  * Operators, from https://digitransit.fi/en/developers/apis/4-realtime-api/vehicle-positions/
  */
 export const OPERATORS = {
+  6: { name: "Oy Pohjolan Liikenne Ab" },
   12: { name: "Helsingin Bussiliikenne Oy" },
   17: { name: "Tammelundin Liikenne Oy" },
   18: { name: "Oy Pohjolan Liikenne Ab" },
