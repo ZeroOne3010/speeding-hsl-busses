@@ -1,5 +1,5 @@
 import { VehiclePositionMessage, VehicleData, Observation, StaticDirectionInfo } from "./types";
-import { TwitterApi } from "twitter-api-v2";
+import { EUploadMimeType, TwitterApi } from "twitter-api-v2";
 import { appKey, appSecret, accessToken, accessSecret } from "./secrets";
 import { setInterval } from "timers";
 import {
@@ -10,6 +10,7 @@ import {
   OPERATORS,
   SPEED_LIMIT_THRESHOLDS
 } from "./constants";
+import { createPngChart } from "./graph";
 
 const vehicles = {};
 const boundingBox = {
@@ -53,7 +54,7 @@ mqttClient.on("connect", async function () {
    * Handles the case when a vehicle has left the observed area.
    * @param vehicleData Data of the finished vehicle.
    */
-  const handleFinishedVehicle = (vehicleData: VehicleData): void => {
+  const handleFinishedVehicle = async (vehicleData: VehicleData): Promise<void> => {
     if (vehicleData.observations.length < 10) {
       // Clearly something went wrong here and we didn't get enough measurements, skip.
       console.error(`Bussi ${vehicleData.line} sai vain ${vehicleData.observations.length} mittausta`);
@@ -84,7 +85,9 @@ mqttClient.on("connect", async function () {
     const time = `${hours}:${minutes}`;
     const message = `Linja ${vehicleData.line} - lähtö ${vehicleData.startTime}. Eskolantietä ${dirDesc} kello ${time}. ${description}`;
     console.log("Reporting: ", message);
-    twitterClient.v2.tweet(message);
+    const chartBuffer = await createPngChart(vehicleData.observations);
+    const uploadId = await twitterClient.v1.uploadMedia(chartBuffer, { mimeType: EUploadMimeType.Png });
+    twitterClient.v2.tweet(message, { media: { media_ids: [uploadId] } });
   };
 
   /**
