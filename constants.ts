@@ -16,11 +16,13 @@ const calculateSpeeding = (speed: number, speedLimit: number): string => {
 const speedToEmotion = (speed: number): string => {
   if (speed <= 30) return "😊";
   if (speed <= 33) return "🙂";
+  if (speed <= 34.5) return "🙁";
   if (speed <= 36) return "☹️";
   if (speed <= 40) return "😠";
   if (speed <= 45) return "😡";
   if (speed <= 50) return "😡😡";
-  return "😡😡😡";
+  if (speed <= 60) return "😡😡😡";
+  return "😡😡😡😡";
 };
 
 export const SPEED_LIMIT_THRESHOLDS = {
