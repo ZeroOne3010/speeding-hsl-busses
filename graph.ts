@@ -2,6 +2,9 @@ import { Observation } from "./types";
 import { ChartJSNodeCanvas, ChartCallback } from "chartjs-node-canvas";
 import { ChartConfiguration } from "chart.js";
 
+const BLUE: string = "rgba(0, 38, 255, 1)";
+const RED: string = "rgba(234, 15, 23, 1)";
+
 export const createPngChart = async (observations: Observation[]): Promise<Buffer> => {
   var labels = observations.map((observation) => {
     const date = new Date(observation.timestamp * 1000);
@@ -12,7 +15,8 @@ export const createPngChart = async (observations: Observation[]): Promise<Buffe
     return time;
   });
 
-  var values = observations.map((observation) => observation.speed);
+  const values = observations.map((observation) => observation.speed);
+  const borderColors = observations.map((observation) => (observation.speed > 30 ? RED : BLUE));
 
   const width = 1024;
   const height = 576;
@@ -24,7 +28,7 @@ export const createPngChart = async (observations: Observation[]): Promise<Buffe
         {
           label: "Bussin nopeus (km/h)",
           data: values,
-          borderColor: ["rgba(0, 38, 255, 1)"],
+          borderColor: borderColors,
           borderWidth: 1
         }
       ]
