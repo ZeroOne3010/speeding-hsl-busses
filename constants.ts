@@ -14,6 +14,7 @@ const calculateSpeeding = (speed: number, speedLimit: number): string => {
 };
 
 const speedToEmotion = (speed: number): string => {
+  if (speed <= 0) return "🐛";
   if (speed <= 30) return "😊";
   if (speed <= 33) return "🙂";
   if (speed <= 34.5) return "🙁";
@@ -27,6 +28,7 @@ const speedToEmotion = (speed: number): string => {
 
 export const SPEED_LIMIT_THRESHOLDS = {
   30: [
+    { maxSpeed: 0, description: (speed: number) => `Mittausdataa ei saatu. ${speedToEmotion(speed)}` },
     { maxSpeed: 30, description: (speed: number) => `Ei ylinopeutta. ${speedToEmotion(speed)}` },
     { maxSpeed: 33, description: (speed: number) => `Pysyi suunnilleen nopeusrajoituksessa. ${speedToEmotion(speed)}` },
     {
