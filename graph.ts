@@ -5,6 +5,15 @@ import { ChartConfiguration } from "chart.js";
 const BLUE: string = "rgba(0, 38, 255, 1)";
 const RED: string = "rgba(234, 15, 23, 1)";
 
+const width = 1024;
+const height = 576;
+
+const chartCallback: ChartCallback = (ChartJS) => {
+  ChartJS.defaults.responsive = true;
+  ChartJS.defaults.maintainAspectRatio = false;
+};
+const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback });
+
 export const createPngChart = async (observations: Observation[]): Promise<Buffer> => {
   var labels = observations.map((observation) => {
     const date = new Date(observation.timestamp * 1000);
@@ -18,8 +27,6 @@ export const createPngChart = async (observations: Observation[]): Promise<Buffe
   const values = observations.map((observation) => observation.speed);
   const borderColors = observations.map((observation) => (observation.speed > 30 ? RED : BLUE));
 
-  const width = 1024;
-  const height = 576;
   const configuration: ChartConfiguration = {
     type: "line",
     data: {
@@ -47,10 +54,5 @@ export const createPngChart = async (observations: Observation[]): Promise<Buffe
       }
     ]
   };
-  const chartCallback: ChartCallback = (ChartJS) => {
-    ChartJS.defaults.responsive = true;
-    ChartJS.defaults.maintainAspectRatio = false;
-  };
-  const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback });
   return chartJSNodeCanvas.renderToBuffer(configuration);
 };
