@@ -2,8 +2,8 @@ import { Observation } from "./types";
 import { ChartJSNodeCanvas, ChartCallback } from "chartjs-node-canvas";
 import { ChartConfiguration } from "chart.js";
 
-const BLUE: string = "rgba(0, 38, 255, 1)";
-const RED: string = "rgba(234, 15, 23, 1)";
+const BLUE: string = "0, 38, 255";
+const RED: string = "234, 15, 23";
 
 const width = 1024;
 const height = 576;
@@ -25,7 +25,15 @@ export const createPngChart = async (observations: Observation[]): Promise<Buffe
   });
 
   const values = observations.map((observation) => observation.speed);
-  const borderColors = observations.map((observation) => (observation.speed > 30 ? RED : BLUE));
+  const borderColors = observations.map((observation) =>
+    observation.speed > 30 ? `rgba(${RED}, 1)` : `rgba(${BLUE}, 1)`
+  );
+  const backgroundColors = observations.map((observation) =>
+    observation.speed > 30 ? `rgba(${RED}, 0.2)` : `rgba(${BLUE}, 0.2)`
+  );
+
+  const lineColor = (ctx): string =>
+    ctx.p0.parsed.y > 30 || ctx.p1.parsed.y > 30 ? `rgba(${RED}, 1)` : `rgba(${BLUE}, 1)`;
 
   const configuration: ChartConfiguration = {
     type: "line",
@@ -36,7 +44,11 @@ export const createPngChart = async (observations: Observation[]): Promise<Buffe
           label: "Bussin nopeus (km/h)",
           data: values,
           borderColor: borderColors,
-          borderWidth: 1
+          backgroundColor: backgroundColors,
+          borderWidth: 1,
+          segment: {
+            borderColor: lineColor
+          }
         }
       ]
     },
