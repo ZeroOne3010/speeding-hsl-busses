@@ -1,4 +1,4 @@
-import { Observation } from "./types";
+import { Observation, VehicleData } from "./types";
 import { ChartJSNodeCanvas, ChartCallback } from "chartjs-node-canvas";
 import { ChartConfiguration } from "chart.js";
 import { SPEED_LIMIT_KPH } from "./constants";
@@ -15,7 +15,8 @@ const chartCallback: ChartCallback = (ChartJS) => {
 };
 const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback });
 
-export const createPngChart = async (observations: Observation[]): Promise<Buffer> => {
+export const createPngChart = async (vehicleData: VehicleData): Promise<Buffer> => {
+  const observations: Observation[] = vehicleData.observations;
   var labels = observations.map((observation) => {
     const date = new Date(observation.timestamp * 1000);
     const hours = date.getHours().toString().padStart(2, "0");
@@ -60,6 +61,16 @@ export const createPngChart = async (observations: Observation[]): Promise<Buffe
             lineWidth: (ctx) => (ctx.tick.value === SPEED_LIMIT_KPH ? 4 : 1),
             color: (ctx) => (ctx.tick.value === SPEED_LIMIT_KPH ? "#ffcd56" : "#e5e5e5")
           }
+        }
+      },
+      plugins: {
+        title: {
+          display: true,
+          text: "Linja " + vehicleData.line + " - lähtö " + vehicleData.startTime + "."
+        },
+        subtitle: {
+          display: true,
+          text: vehicleData.operatorName + ", auto " + vehicleData.vehicleNumber
         }
       }
     },

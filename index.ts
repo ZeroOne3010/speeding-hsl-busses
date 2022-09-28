@@ -86,7 +86,7 @@ mqttClient.on("connect", async function () {
     const message = `Linja ${vehicleData.line} - lähtö ${vehicleData.startTime}. Eskolantietä ${dirDesc} kello ${time}. ${description}`;
     console.log("Reporting: ", message);
     try {
-      const chartBuffer = await createPngChart(vehicleData.observations);
+      const chartBuffer = await createPngChart(vehicleData);
       const uploadId = await twitterClient.v1.uploadMedia(chartBuffer, { mimeType: EUploadMimeType.Png });
       twitterClient.v2.tweet(message, { media: { media_ids: [uploadId] } });
     } catch (error) {
