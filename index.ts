@@ -85,13 +85,15 @@ mqttClient.on("connect", async function () {
     const time = `${hours}:${minutes}`;
     const message = `Linja ${vehicleData.line} - lähtö ${vehicleData.startTime}. Eskolantietä ${dirDesc} kello ${time}. ${description}`;
     console.log("Reporting: ", message);
-    const chartBuffer = await createPngChart(vehicleData.observations);
     try {
+      const chartBuffer = await createPngChart(vehicleData.observations);
       const uploadId = await twitterClient.v1.uploadMedia(chartBuffer, { mimeType: EUploadMimeType.Png });
       twitterClient.v2.tweet(message, { media: { media_ids: [uploadId] } });
     } catch (error) {
       console.error(error);
-      twitterClient.v2.tweet(message + " (Nopeuskäyrän muodostus epäonnistui. 🪲)");
+      twitterClient.v2
+        .tweet(message + " (Nopeuskäyrän muodostus epäonnistui. 🪲)")
+        .catch((err) => console.error("Error in error recovery: ", err));
     }
   };
 
