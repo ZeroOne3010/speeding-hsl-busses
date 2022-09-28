@@ -1,6 +1,7 @@
 import { Observation } from "./types";
 import { ChartJSNodeCanvas, ChartCallback } from "chartjs-node-canvas";
 import { ChartConfiguration } from "chart.js";
+import { SPEED_LIMIT_KPH } from "./constants";
 
 const BLUE: string = "0, 38, 255";
 const RED: string = "234, 15, 23";
@@ -26,14 +27,14 @@ export const createPngChart = async (observations: Observation[]): Promise<Buffe
 
   const values = observations.map((observation) => observation.speed);
   const borderColors = observations.map((observation) =>
-    observation.speed > 30 ? `rgba(${RED}, 1)` : `rgba(${BLUE}, 1)`
+    observation.speed > SPEED_LIMIT_KPH ? `rgba(${RED}, 1)` : `rgba(${BLUE}, 1)`
   );
   const backgroundColors = observations.map((observation) =>
-    observation.speed > 30 ? `rgba(${RED}, 0.2)` : `rgba(${BLUE}, 0.2)`
+    observation.speed > SPEED_LIMIT_KPH ? `rgba(${RED}, 0.2)` : `rgba(${BLUE}, 0.2)`
   );
 
   const lineColor = (ctx): string =>
-    ctx.p0.parsed.y > 30 || ctx.p1.parsed.y > 30 ? `rgba(${RED}, 1)` : `rgba(${BLUE}, 1)`;
+    ctx.p0.parsed.y > SPEED_LIMIT_KPH || ctx.p1.parsed.y > SPEED_LIMIT_KPH ? `rgba(${RED}, 1)` : `rgba(${BLUE}, 1)`;
 
   const configuration: ChartConfiguration = {
     type: "line",
@@ -56,8 +57,8 @@ export const createPngChart = async (observations: Observation[]): Promise<Buffe
       scales: {
         y: {
           grid: {
-            lineWidth: (ctx) => (ctx.tick.value === 30 ? 4 : 1),
-            color: (ctx) => (ctx.tick.value === 30 ? "#ffcd56" : "#e5e5e5")
+            lineWidth: (ctx) => (ctx.tick.value === SPEED_LIMIT_KPH ? 4 : 1),
+            color: (ctx) => (ctx.tick.value === SPEED_LIMIT_KPH ? "#ffcd56" : "#e5e5e5")
           }
         }
       }
