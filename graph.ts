@@ -52,7 +52,16 @@ export const createPngChart = async (observations: Observation[]): Promise<Buffe
         }
       ]
     },
-    options: {},
+    options: {
+      scales: {
+        y: {
+          grid: {
+            lineWidth: (ctx) => (ctx.tick.value === 30 ? 4 : 1),
+            color: (ctx) => (ctx.tick.value === 30 ? "#ffcd56" : "#e5e5e5")
+          }
+        }
+      }
+    },
     plugins: [
       {
         id: "background-colour",
