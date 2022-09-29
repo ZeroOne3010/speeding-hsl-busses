@@ -58,13 +58,13 @@ export const INTERVAL = 2000;
  */
 export const DIRECTIONS: StaticDirectionInfo[] = [
   { arrow: "↑", description: "pohjoiseen" },
-  { arrow: "↗", description: "koilliseen" },
+  { arrow: "↗", description: "pohjoiseen" },
   { arrow: "→", description: "itään" },
-  { arrow: "↘", description: "kaakkoon" },
+  { arrow: "↘", description: "etelään" },
   { arrow: "↓", description: "etelään" },
-  { arrow: "↙", description: "lounaaseen" },
+  { arrow: "↙", description: "etelään" },
   { arrow: "←", description: "länteen" },
-  { arrow: "↖", description: "luoteeseen" },
+  { arrow: "↖", description: "pohjoiseen" },
   { arrow: "↑", description: "pohjoiseen" }
 ];
 
