@@ -93,3 +93,5 @@ export const OPERATORS = {
   90: { name: "VR Oy" },
   195: { name: "Siuntio" }
 };
+
+export const FINNISH_NUMBER_FORMAT = new Intl.NumberFormat("fi-FI");

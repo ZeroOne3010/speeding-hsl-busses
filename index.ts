@@ -8,7 +8,8 @@ import {
   INTERVAL,
   DIRECTIONS,
   OPERATORS,
-  SPEED_LIMIT_THRESHOLDS
+  SPEED_LIMIT_THRESHOLDS,
+  FINNISH_NUMBER_FORMAT
 } from "./constants";
 import { createPngChart } from "./graph";
 
@@ -118,7 +119,14 @@ mqttClient.on("connect", async function () {
       }
     });
     if (currentTimestamp % 100 === 0 || currentTimestamp % 100 === 99) {
-      console.debug(" <3 Heartbeat: it's " + currentTimestamp + ", I'm still alive.");
+      const memoryUsage = process.memoryUsage();
+      console.debug(
+        ` <3 Heartbeat: it's ${currentTimestamp}. Mem allocated: ${FINNISH_NUMBER_FORMAT.format(
+          memoryUsage.rss
+        )} bytes. Heap used/total: ${FINNISH_NUMBER_FORMAT.format(memoryUsage.heapUsed)}/${FINNISH_NUMBER_FORMAT.format(
+          memoryUsage.heapTotal
+        )} bytes. Buffers: ${FINNISH_NUMBER_FORMAT.format(memoryUsage.arrayBuffers)} bytes.`
+      );
     }
   };
 
