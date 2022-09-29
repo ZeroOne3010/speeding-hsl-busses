@@ -208,6 +208,7 @@ mqttClient.on("message", (topic: string, message: string) => {
   });
 
   // Log each received vehicle positioning message to the console:
+  /*
   console.log(
     event.tst +
       "  Linja " +
@@ -224,6 +225,7 @@ mqttClient.on("message", (topic: string, message: string) => {
       ", auto " +
       event.veh
   );
+  */
 });
 
 /*
