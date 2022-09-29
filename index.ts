@@ -88,7 +88,7 @@ mqttClient.on("connect", async function () {
     try {
       const chartBuffer = await createPngChart(vehicleData);
       const uploadId = await twitterClient.v1.uploadMedia(chartBuffer, { mimeType: EUploadMimeType.Png });
-      twitterClient.v2.tweet(message, { media: { media_ids: [uploadId] } });
+      await twitterClient.v2.tweet(message, { media: { media_ids: [uploadId] } });
     } catch (error) {
       console.error(error);
       twitterClient.v2
