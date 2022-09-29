@@ -90,6 +90,11 @@ mqttClient.on("connect", async function () {
     try {
       const chartBuffer = await createPngChart(vehicleData);
       const uploadId = await twitterClient.v1.uploadMedia(chartBuffer, { mimeType: EUploadMimeType.Png });
+      const metadata = await twitterClient.v1.createMediaMetadata(uploadId, {
+        alt_text: {
+          text: `Bussin ${vehicleData.line} (${vehicleData.operatorName} auto ${vehicleData.vehicleNumber}) nopeuskäyrä. ${vehicleData.observations.length} mittauspistettä.`
+        }
+      });
       await twitterClient.v2.tweet(message, { media: { media_ids: [uploadId] } });
     } catch (error) {
       console.error(error);
