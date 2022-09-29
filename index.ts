@@ -78,7 +78,8 @@ mqttClient.on("connect", async function () {
       }
     }
 
-    const dirDesc: string = getDirectionForCompassAngle(maxObservedSpeed.direction).description;
+    const dirDesc: string =
+      maxObservedSpeed.speed > 0 ? getDirectionForCompassAngle(maxObservedSpeed.direction).description : "";
     const date = new Date(maxObservedSpeed.timestamp * 1000);
     const hours = date.getHours().toString().padStart(2, "0");
     const minutes = date.getMinutes().toString().padStart(2, "0");
@@ -200,7 +201,9 @@ mqttClient.on("message", (topic: string, message: string) => {
       event.desi.padStart(4, " ") +
       ": " +
       getDirectionForCompassAngle(event.hdg).arrow +
-      " " +
+      " (" +
+      event.hdg +
+      "°)" +
       kilometersPerHour +
       " km/h" +
       "; " +
