@@ -118,14 +118,18 @@ mqttClient.on("connect", async function () {
         delete vehicles[key];
       }
     });
+
+    // Print regular heartbeat messages:
     if (currentTimestamp % 100 === 0 || currentTimestamp % 100 === 99) {
       const memoryUsage = process.memoryUsage();
       console.debug(
         ` <3 Heartbeat: it's ${currentTimestamp}. Mem allocated: ${FINNISH_NUMBER_FORMAT.format(
           memoryUsage.rss
-        )} bytes. Heap used/total: ${FINNISH_NUMBER_FORMAT.format(memoryUsage.heapUsed)}/${FINNISH_NUMBER_FORMAT.format(
-          memoryUsage.heapTotal
-        )} bytes. Buffers: ${FINNISH_NUMBER_FORMAT.format(memoryUsage.arrayBuffers)} bytes.`
+        )} bytes. Heap used/total: ${FINNISH_NUMBER_FORMAT.format(
+          memoryUsage.heapUsed
+        )} / ${FINNISH_NUMBER_FORMAT.format(memoryUsage.heapTotal)} bytes. Buffers: ${FINNISH_NUMBER_FORMAT.format(
+          memoryUsage.arrayBuffers
+        )} bytes.`
       );
     }
   };
@@ -203,6 +207,7 @@ mqttClient.on("message", (topic: string, message: string) => {
     direction: event.hdg
   });
 
+  // Log each received vehicle positioning message to the console:
   console.log(
     event.tst +
       "  Linja " +
@@ -211,7 +216,7 @@ mqttClient.on("message", (topic: string, message: string) => {
       getDirectionForCompassAngle(event.hdg).arrow +
       " (" +
       event.hdg +
-      "°)" +
+      "°) " +
       kilometersPerHour +
       " km/h" +
       "; " +
