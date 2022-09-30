@@ -4,7 +4,8 @@ Botti, joka (päällä ollessaan) kertoo Twitteriin [@PuksunBussit](https://twit
 
 ## Techy stuff
 
-Ensure `ts-node` is installed: `npm install -g ts-node`. Then build with `npm install` and run with `npm start`. Remember to fill in the Twitter secrets into `secrets.ts`.
+Ensure `ts-node` is installed: `npm install -g ts-node`. Then build with `npm install` and run with `npm start`. Run tests with `npm test`.
+Remember to fill in the Twitter secrets into `secrets.ts`.
 
 Uses the Digitransit API: https://digitransit.fi/en/developers/apis/4-realtime-api/vehicle-positions/
 
