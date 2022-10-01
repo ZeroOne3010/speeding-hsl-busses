@@ -1,7 +1,7 @@
 import { Observation, VehicleData } from "./types";
 import { ChartJSNodeCanvas, ChartCallback } from "chartjs-node-canvas";
 import { ChartConfiguration } from "chart.js";
-import { buildLabelsAndValues, dateToHhMmSs, SPEED_LIMIT_KPH } from "./constants";
+import { buildLabelsAndValues, SPEED_LIMIT_KPH } from "./constants";
 
 const BLUE: string = "0, 38, 255";
 const RED: string = "234, 15, 23";
@@ -19,11 +19,11 @@ export const createPngChart = async (vehicleData: VehicleData): Promise<Buffer> 
   const observations: Observation[] = vehicleData.observations;
   const [labels, values]: [string[], number[]] = buildLabelsAndValues(observations);
 
-  const borderColors: string[] = observations.map((observation) =>
-    observation.speed > SPEED_LIMIT_KPH ? `rgba(${RED}, 1)` : `rgba(${BLUE}, 1)`
+  const borderColors: string[] = values.map((value: number) =>
+    value > SPEED_LIMIT_KPH ? `rgba(${RED}, 1)` : `rgba(${BLUE}, 1)`
   );
-  const backgroundColors: string[] = observations.map((observation) =>
-    observation.speed > SPEED_LIMIT_KPH ? `rgba(${RED}, 0.2)` : `rgba(${BLUE}, 0.2)`
+  const backgroundColors: string[] = values.map((value: number) =>
+    value > SPEED_LIMIT_KPH ? `rgba(${RED}, 0.2)` : `rgba(${BLUE}, 0.2)`
   );
 
   const lineColor = (ctx): string =>
