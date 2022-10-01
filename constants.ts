@@ -1,4 +1,4 @@
-import { StaticDirectionInfo } from "./types";
+import { Observation, StaticDirectionInfo } from "./types";
 
 /**
  * The speed limit on the observed area in kilometers per hour.
@@ -95,3 +95,56 @@ export const OPERATORS = {
 };
 
 export const FINNISH_NUMBER_FORMAT = new Intl.NumberFormat("fi-FI");
+
+export const dateToHhMmSs = (date: Date): string => {
+  const hours = date.getHours().toString().padStart(2, "0");
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+  const seconds = date.getSeconds().toString().padStart(2, "0");
+  return `${hours}:${minutes}:${seconds}`;
+};
+
+export const buildLabelsAndValues = (
+  observations: Pick<Observation, "speed" | "timestamp">[]
+): [string[], number[]] => {
+  const labelsWithGapsFilled: string[] = [];
+  const valuesWithGaps: number[] = [];
+  let nextExpectedTime: string = undefined;
+
+  for (let i = 0; i < observations.length; i++) {
+    const observation: Pick<Observation, "speed" | "timestamp"> = observations[i];
+    const observation2: Pick<Observation, "speed" | "timestamp"> = observations[i + 1];
+
+    const date: Date = new Date(observation.timestamp * 1000);
+    const time: string = dateToHhMmSs(date);
+
+    if (!observation2) {
+      labelsWithGapsFilled.push(time);
+      valuesWithGaps.push(observation.speed);
+      break;
+    }
+
+    const date2: Date = new Date(observation2.timestamp * 1000);
+    const time2: string = dateToHhMmSs(date2);
+
+    const nextExpectedDate: Date = new Date(date);
+    nextExpectedDate.setSeconds(date.getSeconds() + 1);
+    nextExpectedTime = dateToHhMmSs(nextExpectedDate);
+
+    labelsWithGapsFilled.push(time);
+    valuesWithGaps.push(observation.speed);
+
+    if (nextExpectedTime != time2) {
+      const datestamp0Normalized: Date = new Date(date);
+      const datestamp1Normalized: Date = new Date(date2);
+      const missingSeconds: number = (datestamp1Normalized.getTime() - datestamp0Normalized.getTime()) / 1000 - 1;
+      for (let gapIndex = 0; gapIndex < missingSeconds; gapIndex++) {
+        datestamp0Normalized.setSeconds(datestamp0Normalized.getSeconds() + 1);
+        nextExpectedTime = dateToHhMmSs(datestamp0Normalized);
+
+        labelsWithGapsFilled.push(nextExpectedTime);
+        valuesWithGaps.push(undefined);
+      }
+    }
+  }
+  return [labelsWithGapsFilled, valuesWithGaps];
+};

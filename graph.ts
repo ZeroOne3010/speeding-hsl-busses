@@ -1,7 +1,7 @@
 import { Observation, VehicleData } from "./types";
 import { ChartJSNodeCanvas, ChartCallback } from "chartjs-node-canvas";
 import { ChartConfiguration } from "chart.js";
-import { SPEED_LIMIT_KPH } from "./constants";
+import { buildLabelsAndValues, dateToHhMmSs, SPEED_LIMIT_KPH } from "./constants";
 
 const BLUE: string = "0, 38, 255";
 const RED: string = "234, 15, 23";
@@ -15,22 +15,14 @@ const chartCallback: ChartCallback = (ChartJS) => {
 };
 const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback });
 
-const dateToHhMmSs = (date: Date): string => {
-  const hours = date.getHours().toString().padStart(2, "0");
-  const minutes = date.getMinutes().toString().padStart(2, "0");
-  const seconds = date.getSeconds().toString().padStart(2, "0");
-  return `${hours}:${minutes}:${seconds}`;
-};
-
 export const createPngChart = async (vehicleData: VehicleData): Promise<Buffer> => {
   const observations: Observation[] = vehicleData.observations;
-  var labels = observations.map((observation) => dateToHhMmSs(new Date(observation.timestamp * 1000)));
+  const [labels, values]: [string[], number[]] = buildLabelsAndValues(observations);
 
-  const values = observations.map((observation) => observation.speed);
-  const borderColors = observations.map((observation) =>
+  const borderColors: string[] = observations.map((observation) =>
     observation.speed > SPEED_LIMIT_KPH ? `rgba(${RED}, 1)` : `rgba(${BLUE}, 1)`
   );
-  const backgroundColors = observations.map((observation) =>
+  const backgroundColors: string[] = observations.map((observation) =>
     observation.speed > SPEED_LIMIT_KPH ? `rgba(${RED}, 0.2)` : `rgba(${BLUE}, 0.2)`
   );
 
@@ -45,6 +37,7 @@ export const createPngChart = async (vehicleData: VehicleData): Promise<Buffer> 
         {
           label: "Bussin nopeus (km/h)",
           data: values,
+          spanGaps: true,
           borderColor: borderColors,
           backgroundColor: backgroundColors,
           borderWidth: 1,
