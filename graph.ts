@@ -1,6 +1,6 @@
 import { Observation, VehicleData } from "./types";
 import { ChartJSNodeCanvas, ChartCallback } from "chartjs-node-canvas";
-import { ChartConfiguration } from "chart.js";
+import { Chart, ChartConfiguration, ScriptableLineSegmentContext, ScriptableScaleContext } from "chart.js";
 import { buildLabelsAndValues, SPEED_LIMIT_KPH } from "./constants";
 
 const BLUE: string = "0, 38, 255";
@@ -26,7 +26,7 @@ export const createPngChart = async (vehicleData: VehicleData): Promise<Buffer> 
     value > SPEED_LIMIT_KPH ? `rgba(${RED}, 0.2)` : `rgba(${BLUE}, 0.2)`
   );
 
-  const lineColor = (ctx): string =>
+  const lineColor = (ctx: ScriptableLineSegmentContext): string =>
     ctx.p0.parsed.y > SPEED_LIMIT_KPH || ctx.p1.parsed.y > SPEED_LIMIT_KPH ? `rgba(${RED}, 1)` : `rgba(${BLUE}, 1)`;
 
   const configuration: ChartConfiguration = {
@@ -51,8 +51,8 @@ export const createPngChart = async (vehicleData: VehicleData): Promise<Buffer> 
       scales: {
         y: {
           grid: {
-            lineWidth: (ctx) => (ctx.tick.value === SPEED_LIMIT_KPH ? 4 : 1),
-            color: (ctx) => (ctx.tick.value === SPEED_LIMIT_KPH ? "#ffcd56" : "#e5e5e5")
+            lineWidth: (ctx: ScriptableScaleContext) => (ctx.tick.value === SPEED_LIMIT_KPH ? 4 : 1),
+            color: (ctx: ScriptableScaleContext) => (ctx.tick.value === SPEED_LIMIT_KPH ? "#ffcd56" : "#e5e5e5")
           }
         }
       },
@@ -70,7 +70,7 @@ export const createPngChart = async (vehicleData: VehicleData): Promise<Buffer> 
     plugins: [
       {
         id: "background-colour",
-        beforeDraw: (chart) => {
+        beforeDraw: (chart: Chart) => {
           const ctx = chart.ctx;
           ctx.save();
           ctx.fillStyle = "white";
