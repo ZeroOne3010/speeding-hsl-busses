@@ -45,7 +45,7 @@ export const SPEED_LIMIT_THRESHOLDS = {
  * Handle vehicle report if more than this many seconds have passed
  * since the last observation was received:
  */
-export const BYGONE_VEHICLE_THRESHOLD = 15;
+export const BYGONE_VEHICLE_THRESHOLD = 25;
 
 /**
  * Check every this many milliseconds whether some vehicle has passed
