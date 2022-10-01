@@ -64,10 +64,6 @@ mqttClient.on("connect", async function () {
     const maxObservedSpeed: Observation = vehicleData.observations.reduce((prev, curr) =>
       curr.speed > prev.speed ? curr : prev
     );
-    console.log(
-      `Max observed speed for ${vehicleData.line}, based on ${vehicleData.observations.length} observations: `,
-      maxObservedSpeed
-    );
 
     const thresholds = SPEED_LIMIT_THRESHOLDS[SPEED_LIMIT_KPH];
     let description: string = "";
