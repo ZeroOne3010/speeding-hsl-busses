@@ -1,6 +1,48 @@
 # Puksun bussit -Twitter-botti
 
-Botti, joka (päällä ollessaan) kertoo Twitteriin [@PuksunBussit](https://twitter.com/PuksunBussit)-käyttäjänä, jos bussit kaahaavat Pukinmäessä.
+Botti, joka (päällä ollessaan) kertoo Twitteriin [@PuksunBussit](https://twitter.com/PuksunBussit)-käyttäjänä, jos bussit kaahaavat Pukinmäessä kuvan alueella:
+
+```geojson
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": 1,
+      "properties": {
+        "ID": 0
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              24.990907,
+              60.247617
+            ],
+            [
+              24.990907,
+              60.243575
+            ],
+            [
+              24.994711,
+              60.243575
+            ],
+            [
+              24.994711,
+              60.247617
+            ],
+            [
+              24.990907,
+              60.247617
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}
+```
 
 ## Techy stuff
 
