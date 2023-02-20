@@ -32,11 +32,19 @@ export const SPEED_LIMIT_THRESHOLDS = {
     { maxSpeed: 30, description: (speed: number) => `Ei ylinopeutta. ${speedToEmotion(speed)}` },
     { maxSpeed: 33, description: (speed: number) => `Pysyi suunnilleen nopeusrajoituksessa. ${speedToEmotion(speed)}` },
     {
-      maxSpeed: 999,
+      maxSpeed: 39.9,
       description: (speed: number) =>
         `Suurin ylinopeus ${calculateSpeeding(speed, 30)} (${percentageOverSpeedLimit(speed, 30)}). ${speedToEmotion(
           speed
         )}`
+    },
+    {
+      maxSpeed: 999,
+      description: (speed: number) =>
+        `Suurin ylinopeus ${calculateSpeeding(speed, 30)} (${percentageOverSpeedLimit(
+          speed,
+          30
+        )}), siis ${speed} km/h kolmenkympin alueella! ${speedToEmotion(speed)}`
     }
   ]
 };
