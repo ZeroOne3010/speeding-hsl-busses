@@ -1,6 +1,5 @@
 import { VehiclePositionMessage, VehicleData, Observation, StaticDirectionInfo } from "./types";
-import { EUploadMimeType, TwitterApi } from "twitter-api-v2";
-import { appKey, appSecret, accessToken, accessSecret } from "./secrets";
+import { BskyAgent } from "@atproto/api";
 import { setInterval } from "timers";
 import {
   SPEED_LIMIT_KPH,
@@ -42,14 +41,13 @@ const getDirectionForCompassAngle = (angle: number): StaticDirectionInfo => {
   return DIRECTIONS[Math.floor(((angle % 360) + 22.5) / 45)];
 };
 
+const user = process.env.BLUESKY_USERNAME;
+const password = process.env.BLUESKY_PASSWORD;
+
 mqttClient.on("connect", async function () {
-  console.log("Connected");
-  const twitterClient = new TwitterApi({
-    appKey: appKey,
-    appSecret: appSecret,
-    accessToken: accessToken,
-    accessSecret: accessSecret
-  });
+  console.log("Connected as ", user);
+  const bskyAgent = new BskyAgent({ service: "https://bsky.social" });
+  await bskyAgent.login({ identifier: user, password: password });
 
   /**
    * Handles the case when a vehicle has left the observed area.
@@ -85,17 +83,19 @@ mqttClient.on("connect", async function () {
     console.log("Reporting: ", message);
     try {
       const chartBuffer = await createPngChart(vehicleData);
-      const uploadId = await twitterClient.v1.uploadMedia(chartBuffer, { mimeType: EUploadMimeType.Png });
-      const metadata = await twitterClient.v1.createMediaMetadata(uploadId, {
-        alt_text: {
-          text: `Bussin ${vehicleData.line} (${vehicleData.operatorName} auto ${vehicleData.vehicleNumber}) nopeuskäyrä. ${vehicleData.observations.length} mittauspistettä.`
+      const upload = await bskyAgent.uploadBlob(chartBuffer, { encoding: "image/png" });
+      const altText = `Bussin ${vehicleData.line} (${vehicleData.operatorName} auto ${vehicleData.vehicleNumber}) nopeuskäyrä. ${vehicleData.observations.length} mittauspistettä.`;
+      await bskyAgent.post({
+        text: message,
+        embed: {
+          $type: "app.bsky.embed.images",
+          images: [{ image: upload.data.blob, alt: altText }]
         }
       });
-      await twitterClient.v2.tweet(message, { media: { media_ids: [uploadId] } });
     } catch (error) {
       console.error(error);
-      twitterClient.v2
-        .tweet(message + " (Nopeuskäyrän muodostus epäonnistui. 🪲)")
+      bskyAgent
+        .post({ text: message + " (Nopeuskäyrän muodostus epäonnistui. 🪲)" })
         .catch((err) => console.error("Error in error recovery: ", err));
     }
   };
@@ -249,3 +249,5 @@ Geohash: (60.123, 24.789) becomes 60;24/17/28/39
    1   2  3       4       5  6   7 8 9 0 1 2 3 4 15             
  "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/31/#"
  */
+
+
