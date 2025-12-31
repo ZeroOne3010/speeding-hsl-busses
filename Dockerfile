@@ -22,17 +22,22 @@ RUN apt-get update -qq && \
 
 # Install node modules
 COPY package-lock.json package.json ./
-RUN npm ci
+RUN npm ci --include=dev
 
 # Copy application code
 COPY . .
+RUN npm run build
 
 
 # Final stage for app image
 FROM base
 
+# Install only production dependencies
+COPY package-lock.json package.json ./
+RUN npm ci --omit=dev
+
 # Copy built application
-COPY --from=build /app /app
+COPY --from=build /app/dist /app/dist
 
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 3000
