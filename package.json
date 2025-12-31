@@ -6,7 +6,9 @@
   "scripts": {
     "test": "ts-node-test constants.test.ts",
     "lint": "eslint src",
-    "start": "node --env-file=.env -r ts-node/register index.ts"
+    "dev": "node --env-file=.env -r ts-node/register index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js"
   },
   "author": "Ville Saalo",
   "license": "MIT",

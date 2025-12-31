@@ -2,6 +2,13 @@
   "compilerOptions": {
     "target": "es2017",
     "module": "commonjs",
-    "experimentalDecorators": true
-  }
+    "experimentalDecorators": true,
+    "rootDir": ".",
+    "outDir": "dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+  "include": ["index.ts"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
 }
