@@ -46,8 +46,8 @@ Botti, joka (päällä ollessaan) kertoo Blueskyhin [@puksunbussit.bluesky.bot](
 
 ## Techy stuff
 
-Ensure `ts-node` is installed: `npm install -g ts-node`. Then build with `npm install` and run with `npm start`. Run tests with `npm test`.
-Create an app password for the bot and then fill in the Bluesky secrets into the `.env` file.
+Ensure `ts-node` is installed: `npm install -g ts-node`. Then build with `npm install` and run with `npm start` for production or `npm dev` for development. Run tests with `npm test`.
+Create an app password for the bot and then fill in the Bluesky secrets into the `.env` file for development mode or environment variables in production mode.
 
 Uses the Digitransit API: https://digitransit.fi/en/developers/apis/4-realtime-api/vehicle-positions/
 
