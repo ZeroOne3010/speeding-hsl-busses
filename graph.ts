@@ -12,6 +12,7 @@ const height = 576;
 const chartCallback: ChartCallback = (ChartJS) => {
   ChartJS.defaults.responsive = true;
   ChartJS.defaults.maintainAspectRatio = false;
+  ChartJS.defaults.font.family = "Noto Sans";
 };
 const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback });
 

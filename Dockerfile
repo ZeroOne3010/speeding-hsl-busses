@@ -32,6 +32,11 @@ RUN npm run build
 # Final stage for app image
 FROM base
 
+# Install fonts for server-side chart rendering
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y fontconfig fonts-noto-core && \
+    rm -rf /var/lib/apt/lists/*
+
 # Install only production dependencies
 COPY package-lock.json package.json ./
 RUN npm ci --omit=dev
