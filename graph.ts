@@ -17,17 +17,17 @@ const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback }
 
 export const createPngChart = async (vehicleData: VehicleData): Promise<Buffer> => {
   const observations: Observation[] = vehicleData.observations;
-  const [labels, values]: [string[], number[]] = buildLabelsAndValues(observations);
+  const [labels, values]: [string[], (number | null)[]] = buildLabelsAndValues(observations);
 
-  const borderColors: string[] = values.map((value: number) =>
-    value > SPEED_LIMIT_KPH ? `rgba(${RED}, 1)` : `rgba(${BLUE}, 1)`
+  const borderColors: string[] = values.map((value: number | null) =>
+    value != null && value > SPEED_LIMIT_KPH ? `rgba(${RED}, 1)` : `rgba(${BLUE}, 1)`
   );
-  const backgroundColors: string[] = values.map((value: number) =>
-    value > SPEED_LIMIT_KPH ? `rgba(${RED}, 0.2)` : `rgba(${BLUE}, 0.2)`
+  const backgroundColors: string[] = values.map((value: number | null) =>
+    value != null && value > SPEED_LIMIT_KPH ? `rgba(${RED}, 0.2)` : `rgba(${BLUE}, 0.2)`
   );
 
   const lineColor = (ctx: ScriptableLineSegmentContext): string =>
-    ctx.p0.parsed.y > SPEED_LIMIT_KPH || ctx.p1.parsed.y > SPEED_LIMIT_KPH ? `rgba(${RED}, 1)` : `rgba(${BLUE}, 1)`;
+    (ctx.p0.parsed.y != null && ctx.p0.parsed.y > SPEED_LIMIT_KPH) || (ctx.p1.parsed.y != null && ctx.p1.parsed.y > SPEED_LIMIT_KPH) ? `rgba(${RED}, 1)` : `rgba(${BLUE}, 1)`;
 
   const configuration: ChartConfiguration = {
     type: "line",

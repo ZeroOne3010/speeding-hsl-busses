@@ -53,13 +53,13 @@ export const SPEED_LIMIT_THRESHOLDS = {
  * Handle vehicle report if more than this many seconds have passed
  * since the last observation was received:
  */
-export const BYGONE_VEHICLE_THRESHOLD = 25;
+export const BYGONE_VEHICLE_THRESHOLD: number = 25;
 
 /**
  * Check every this many milliseconds whether some vehicle has passed
  * the observation zone would be ready to report:
  */
-export const INTERVAL = 2000;
+export const INTERVAL: number = 2000;
 
 /**
  * North, North-East, East, South-East, ... arrows and descriptions for visualizing the direction of a vehicle.
@@ -79,7 +79,7 @@ export const DIRECTIONS: StaticDirectionInfo[] = [
 /**
  * Operators, from https://digitransit.fi/en/developers/apis/4-realtime-api/vehicle-positions/
  */
-export const OPERATORS = {
+export const OPERATORS: Record<number, { name: string }> = {
   6: { name: "Oy Pohjolan Liikenne Ab" },
   12: { name: "Helsingin Bussiliikenne Oy" },
   17: { name: "Tammelundin Liikenne Oy" },
@@ -102,21 +102,21 @@ export const OPERATORS = {
   195: { name: "Siuntio" }
 };
 
-export const FINNISH_NUMBER_FORMAT = new Intl.NumberFormat("fi-FI");
+export const FINNISH_NUMBER_FORMAT: Intl.NumberFormat = new Intl.NumberFormat("fi-FI");
 
 export const dateToHhMmSs = (date: Date): string => {
-  const hours = date.getHours().toString().padStart(2, "0");
-  const minutes = date.getMinutes().toString().padStart(2, "0");
-  const seconds = date.getSeconds().toString().padStart(2, "0");
+  const hours: string = date.getHours().toString().padStart(2, "0");
+  const minutes: string = date.getMinutes().toString().padStart(2, "0");
+  const seconds: string = date.getSeconds().toString().padStart(2, "0");
   return `${hours}:${minutes}:${seconds}`;
 };
 
 export const buildLabelsAndValues = (
   observations: Pick<Observation, "speed" | "timestamp">[]
-): [string[], number[]] => {
+): [string[], (number | null)[]] => {
   const labelsWithGapsFilled: string[] = [];
-  const valuesWithGaps: number[] = [];
-  let nextExpectedTime: string = undefined;
+  const valuesWithGaps: (number | null)[] = [];
+  let nextExpectedTime: string | null = null;
 
   for (let i = 0; i < observations.length; i++) {
     const observation: Pick<Observation, "speed" | "timestamp"> = observations[i];
@@ -150,7 +150,7 @@ export const buildLabelsAndValues = (
         nextExpectedTime = dateToHhMmSs(datestamp0Normalized);
 
         labelsWithGapsFilled.push(nextExpectedTime);
-        valuesWithGaps.push(undefined);
+        valuesWithGaps.push(null);
       }
     }
   }

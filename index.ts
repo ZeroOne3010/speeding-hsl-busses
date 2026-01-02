@@ -12,7 +12,7 @@ import {
 } from "./constants";
 import { createPngChart } from "./graph";
 
-const vehicles = {};
+const vehicles: Record<string, VehicleData> = {};
 const boundingBox = {
   topLat: 60.247617,
   leftLong: 24.990907,
@@ -43,6 +43,10 @@ const getDirectionForCompassAngle = (angle: number): StaticDirectionInfo => {
 
 const user = process.env.BLUESKY_USERNAME;
 const password = process.env.BLUESKY_PASSWORD;
+
+if(!user || !password) {
+  throw new Error("BLUESKY_USERNAME and BLUESKY_PASSWORD environment variables must be set!");
+}
 
 mqttClient.on("connect", async function () {
   console.log("Connected as ", user);
@@ -82,7 +86,7 @@ mqttClient.on("connect", async function () {
     const message = `Linja ${vehicleData.line} - lähtö ${vehicleData.startTime}. Eskolantietä ${dirDesc} kello ${time}. ${description}`;
     console.log("Reporting: ", message);
     try {
-      const chartBuffer = await createPngChart(vehicleData);
+      const chartBuffer: Buffer = await createPngChart(vehicleData);
       const upload = await bskyAgent.uploadBlob(chartBuffer, { encoding: "image/png" });
       const altText = `Bussin ${vehicleData.line} (${vehicleData.operatorName} auto ${vehicleData.vehicleNumber}) nopeuskäyrä. ${vehicleData.observations.length} mittauspistettä.`;
       await bskyAgent.post({
@@ -186,7 +190,7 @@ mqttClient.on("message", (topic: string, message: string) => {
     return;
   }
 
-  const vehicle = event.oper + "_" + event.veh;
+  const vehicle: string = event.oper + "_" + event.veh;
   if (!vehicles[vehicle]) {
     // This is a new vehicle that just appeared
     vehicles[vehicle] = {
