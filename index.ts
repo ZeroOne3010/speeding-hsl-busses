@@ -136,9 +136,7 @@ mqttClient.on("connect", async function () {
     const dirDesc: string =
       maxObservedSpeed.speed > 0 ? getDirectionForCompassAngle(maxObservedSpeed.direction).description : "";
     const date = new Date(maxObservedSpeed.timestamp * 1000);
-    const hours = date.getHours().toString().padStart(2, "0");
-    const minutes = date.getMinutes().toString().padStart(2, "0");
-    const time = `${hours}:${minutes}`;
+    const time = date.toLocaleString('fi-FI', { timeZone: 'Europe/Helsinki', hour: '2-digit', minute: '2-digit' });
     const message = `Linja ${vehicleData.line} - lähtö ${vehicleData.startTime}. Eskolantietä ${dirDesc} kello ${time}. ${description}`;
     console.log("Reporting: ", message);
     try {
