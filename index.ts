@@ -1,6 +1,8 @@
 import { VehiclePositionMessage, VehicleData, Observation, StaticDirectionInfo } from "./types";
 import { BskyAgent } from "@atproto/api";
 import { setInterval } from "timers";
+import { promises as fs } from "fs";
+import path from "path";
 import {
   SPEED_LIMIT_KPH,
   BYGONE_VEHICLE_THRESHOLD,
@@ -43,15 +45,68 @@ const getDirectionForCompassAngle = (angle: number): StaticDirectionInfo => {
 
 const user = process.env.BLUESKY_USERNAME;
 const password = process.env.BLUESKY_PASSWORD;
+const devImageOutputDir = process.env.DEV_IMAGE_OUTPUT_DIR;
+const hasCredentials = Boolean(user && password);
 
-if(!user || !password) {
-  throw new Error("BLUESKY_USERNAME and BLUESKY_PASSWORD environment variables must be set!");
-}
+type OutputSink = {
+  name: string;
+  handle: (payload: { message: string; chartBuffer: Buffer; vehicleData: VehicleData }) => Promise<void>;
+  handleChartFailure?: (payload: { message: string; error: unknown }) => Promise<void>;
+};
+
+const sinks: OutputSink[] = [];
 
 mqttClient.on("connect", async function () {
-  console.log("Connected as ", user);
-  const bskyAgent = new BskyAgent({ service: "https://bsky.social" });
-  await bskyAgent.login({ identifier: user, password: password });
+  sinks.length = 0;
+  const isDevImageMode = !hasCredentials && Boolean(devImageOutputDir);
+  if (!hasCredentials && !isDevImageMode) {
+    throw new Error(
+      "BLUESKY_USERNAME and BLUESKY_PASSWORD must be set, or define DEV_IMAGE_OUTPUT_DIR to enable dev image mode!"
+    );
+  }
+
+  console.log("Connected as", user || "dev-local-mode");
+  const bskyAgent = hasCredentials ? new BskyAgent({ service: "https://bsky.social" }) : null;
+  if (bskyAgent) {
+    await bskyAgent.login({ identifier: user as string, password: password as string });
+    sinks.push({
+      name: "bluesky",
+      handle: async ({ message, chartBuffer, vehicleData }) => {
+        const upload = await bskyAgent.uploadBlob(chartBuffer, { encoding: "image/png" });
+        const altText = `Bussin ${vehicleData.line} (${vehicleData.operatorName} auto ${vehicleData.vehicleNumber}) nopeuskäyrä. ${vehicleData.observations.length} mittauspistettä.`;
+        await bskyAgent.post({
+          text: message,
+          embed: {
+            $type: "app.bsky.embed.images",
+            images: [{ image: upload.data.blob, alt: altText }]
+          }
+        });
+      },
+      handleChartFailure: async ({ message }) => {
+        await bskyAgent.post({ text: message + " (Nopeuskäyrän muodostus epäonnistui. 🪲)" });
+      }
+    });
+  }
+
+  if (devImageOutputDir) {
+    const outputDir = devImageOutputDir;
+    sinks.push({
+      name: "disk",
+      handle: async ({ chartBuffer, vehicleData }) => {
+        await fs.mkdir(outputDir, { recursive: true });
+        const safeLine = vehicleData.line.replace(/[^\w.-]+/g, "_");
+        const lastTimestamp = vehicleData.observations.at(-1)?.timestamp ?? Math.round(Date.now() / 1000);
+        const fileName = `${safeLine}_${vehicleData.vehicleNumber}_${lastTimestamp}.png`;
+        const outputPath = path.join(outputDir, fileName);
+        await fs.writeFile(outputPath, chartBuffer);
+        console.log(`Saved dev image to ${outputPath}`);
+      }
+    });
+  }
+
+  if (sinks.length === 0) {
+    throw new Error("No output sinks configured. Check BLUESKY_USERNAME/BLUESKY_PASSWORD or DEV_IMAGE_OUTPUT_DIR.");
+  }
 
   /**
    * Handles the case when a vehicle has left the observed area.
@@ -87,20 +142,23 @@ mqttClient.on("connect", async function () {
     console.log("Reporting: ", message);
     try {
       const chartBuffer: Buffer = await createPngChart(vehicleData);
-      const upload = await bskyAgent.uploadBlob(chartBuffer, { encoding: "image/png" });
-      const altText = `Bussin ${vehicleData.line} (${vehicleData.operatorName} auto ${vehicleData.vehicleNumber}) nopeuskäyrä. ${vehicleData.observations.length} mittauspistettä.`;
-      await bskyAgent.post({
-        text: message,
-        embed: {
-          $type: "app.bsky.embed.images",
-          images: [{ image: upload.data.blob, alt: altText }]
+      for (const sink of sinks) {
+        try {
+          await sink.handle({ message, chartBuffer, vehicleData });
+        } catch (error) {
+          console.error(`Error sending to ${sink.name}:`, error);
         }
-      });
+      }
     } catch (error) {
-      console.error(error);
-      bskyAgent
-        .post({ text: message + " (Nopeuskäyrän muodostus epäonnistui. 🪲)" })
-        .catch((err) => console.error("Error in error recovery: ", err));
+      console.error("Error creating chart:", error);
+      for (const sink of sinks) {
+        if (!sink.handleChartFailure) {
+          continue;
+        }
+        sink.handleChartFailure({ message, error }).catch((err) => {
+          console.error(`Error in ${sink.name} error recovery: `, err);
+        });
+      }
     }
   };
 
