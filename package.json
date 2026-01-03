@@ -7,7 +7,7 @@
     "test": "node --test --require ts-node/register constants.test.ts",
     "lint": "eslint src",
     "dev": "node --env-file=.env -r ts-node/register index.ts",
-    "dev-local": "cross-env DEV_IMAGE_OUTPUT_DIR=./dev-output node -r ts-node/register index.ts",
+    "dev-local": "cross-env DEBUG=true DEV_IMAGE_OUTPUT_DIR=./dev-output node -r ts-node/register index.ts",
     "build": "tsc -p tsconfig.json",
     "prestart": "npm run build",
     "start": "node dist/index.js"

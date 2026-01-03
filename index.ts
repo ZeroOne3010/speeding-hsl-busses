@@ -46,6 +46,7 @@ const getDirectionForCompassAngle = (angle: number): StaticDirectionInfo => {
 const user = process.env.BLUESKY_USERNAME;
 const password = process.env.BLUESKY_PASSWORD;
 const devImageOutputDir = process.env.DEV_IMAGE_OUTPUT_DIR;
+const debugEnabled = process.env.DEBUG === 'true' || process.env.DEBUG === '1';
 const hasCredentials = Boolean(user && password);
 
 type OutputSink = {
@@ -271,24 +272,27 @@ mqttClient.on("message", (topic: string, message: string) => {
   });
 
   // Log each received vehicle positioning message to the console:
-  /*
-  console.log(
-    event.tst +
-      "  Linja " +
-      event.desi.padStart(4, " ") +
-      ": " +
-      getDirectionForCompassAngle(event.hdg).arrow +
-      " (" +
-      event.hdg +
-      "°) " +
-      kilometersPerHour +
-      " km/h" +
-      "; " +
-      (OPERATORS[event.oper]?.name || `N/A ("${event.oper}")`) +
-      ", auto " +
-      event.veh
-  );
-  */
+  if (debugEnabled) {
+    console.debug(
+      event.tst +
+        "  Linja " +
+        event.desi.padStart(4, " ") +
+        ": " +
+        getDirectionForCompassAngle(event.hdg).arrow +
+        " (" +
+        event.hdg +
+        "°) " +
+        kilometersPerHour +
+        " km/h" +
+        "; " +
+        event.acc +
+        " m/s²; " +
+        (OPERATORS[event.oper]?.name || `N/A ("${event.oper}")`) +
+        ", auto " +
+        event.veh
+    );
+  }
+
 });
 
 /*
