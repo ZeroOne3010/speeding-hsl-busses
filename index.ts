@@ -261,13 +261,20 @@ mqttClient.on("message", (topic: string, message: string) => {
   }
 
   const kilometersPerHour: number = mpsToKph(event.spd);
-  vehicles[vehicle].observations.push({
-    latitude: event.lat,
-    longitude: event.long,
-    timestamp: event.tsi,
-    speed: kilometersPerHour,
-    direction: event.hdg
-  });
+  const observation = {
+      latitude: event.lat,
+      longitude: event.long,
+      timestamp: event.tsi,
+      speed: kilometersPerHour,
+      direction: event.hdg,
+      acceleration: event.acc
+    };
+  if(event.acc > 1.5) {
+    // This must be a measurement error due to excessive acceleration, skip it.
+    console.log("Skipping observation for " + vehicle + " with excessive acceleration:", observation);
+  } else {
+    vehicles[vehicle].observations.push(observation);
+  }
 
   // Log each received vehicle positioning message to the console:
   if (debugEnabled) {

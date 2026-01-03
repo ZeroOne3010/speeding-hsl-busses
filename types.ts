@@ -39,6 +39,7 @@ export type Observation = {
   timestamp: number;
   speed: number;
   direction: number;
+  acceleration: number;
 };
 
 export type StaticDirectionInfo = {
