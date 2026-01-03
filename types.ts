@@ -40,6 +40,7 @@ export type Observation = {
   speed: number;
   direction: number;
   acceleration: number;
+  offsetFromSchedule: number;
 };
 
 export type StaticDirectionInfo = {

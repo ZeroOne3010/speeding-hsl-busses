@@ -267,7 +267,8 @@ mqttClient.on("message", (topic: string, message: string) => {
       timestamp: event.tsi,
       speed: kilometersPerHour,
       direction: event.hdg,
-      acceleration: event.acc
+      acceleration: event.acc,
+      offsetFromSchedule: event.dl
     };
   if(event.acc > 1.5) {
     // This must be a measurement error due to excessive acceleration, skip it.
