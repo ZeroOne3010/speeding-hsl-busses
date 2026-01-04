@@ -75,13 +75,26 @@ mqttClient.on("connect", async function () {
       handle: async ({ message, chartBuffer, vehicleData }) => {
         const upload = await bskyAgent.uploadBlob(chartBuffer, { encoding: "image/png" });
         const altText = `Bussin ${vehicleData.line} (${vehicleData.operatorName} auto ${vehicleData.vehicleNumber}) nopeuskäyrä. ${vehicleData.observations.length} mittauspistettä.`;
-        await bskyAgent.post({
+        const post = await bskyAgent.post({
           text: message,
           embed: {
             $type: "app.bsky.embed.images",
             images: [{ image: upload.data.blob, alt: altText }]
           }
         });
+        const maxObservedSpeed = vehicleData.observations.reduce(
+          (max, observation) => (observation.speed > max ? observation.speed : max),
+          0
+        );
+
+        const BLUESKY_LIKE_SPEED_THRESHOLD: number = 50;
+        if (maxObservedSpeed >= BLUESKY_LIKE_SPEED_THRESHOLD) {
+          try {
+            await bskyAgent.like(post.uri, post.cid);
+          } catch (error) {
+            console.error(`Failed to like post ${post.uri}:`, error);
+          }
+        }
       },
       handleChartFailure: async ({ message }) => {
         await bskyAgent.post({ text: message + " (Nopeuskäyrän muodostus epäonnistui. 🪲)" });
@@ -321,5 +334,3 @@ Geohash: (60.123, 24.789) becomes 60;24/17/28/39
    1   2  3       4       5  6   7 8 9 0 1 2 3 4 15             
  "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/31/#"
  */
-
-
