@@ -1,6 +1,6 @@
 # Puksun bussit -Bluesky-botti
 
-Botti, joka (päällä ollessaan) kertoo Blueskyhin [@puksunbussit.bluesky.bot](https://bsky.app/profile/puksunbussit.bluesky.bot), jos bussit kaahaavat Pukinmäessä kuvan alueella:
+Botti, joka kertoo Blueskyhin [@puksunbussit.bluesky.bot](https://bsky.app/profile/puksunbussit.bluesky.bot), jos bussit kaahaavat Pukinmäessä kuvan alueella:
 
 ```geojson
 {
