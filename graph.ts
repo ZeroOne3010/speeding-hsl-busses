@@ -18,15 +18,12 @@ const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback }
 
 export const createPngChart = async (vehicleData: VehicleData): Promise<Buffer> => {
   const observations: Observation[] = vehicleData.observations;
-  const [labels, values]: [string[], (number | null)[]] = buildLabelsAndValues(observations);
+  const [labels, values, pointBackgroundColors]: [string[], (number | null)[], string[]] =
+    buildLabelsAndValues(observations);
 
   const borderColors: string[] = values.map((value: number | null) =>
     value != null && value > SPEED_LIMIT_KPH ? `rgba(${RED}, 1)` : `rgba(${BLUE}, 1)`
   );
-  const backgroundColors: string[] = values.map((value: number | null) =>
-    value != null && value > SPEED_LIMIT_KPH ? `rgba(${RED}, 0.2)` : `rgba(${BLUE}, 0.2)`
-  );
-
   const lineColor = (ctx: ScriptableLineSegmentContext): string =>
     (ctx.p0.parsed.y != null && ctx.p0.parsed.y > SPEED_LIMIT_KPH) || (ctx.p1.parsed.y != null && ctx.p1.parsed.y > SPEED_LIMIT_KPH) ? `rgba(${RED}, 1)` : `rgba(${BLUE}, 1)`;
 
@@ -40,7 +37,7 @@ export const createPngChart = async (vehicleData: VehicleData): Promise<Buffer> 
           data: values,
           spanGaps: true,
           borderColor: borderColors,
-          backgroundColor: backgroundColors,
+          pointBackgroundColor: pointBackgroundColors,
           borderWidth: 1,
           segment: {
             borderColor: lineColor
@@ -64,7 +61,9 @@ export const createPngChart = async (vehicleData: VehicleData): Promise<Buffer> 
         },
         subtitle: {
           display: true,
-          text: vehicleData.operatorName + ", auto " + vehicleData.vehicleNumber
+          text: [
+            vehicleData.operatorName + ", auto " + vehicleData.vehicleNumber
+          ]
         }
       }
     },
@@ -76,6 +75,41 @@ export const createPngChart = async (vehicleData: VehicleData): Promise<Buffer> 
           ctx.save();
           ctx.fillStyle = "white";
           ctx.fillRect(0, 0, width, height);
+          ctx.restore();
+        }
+      },
+      {
+        id: "schedule-legend",
+        afterDraw: (chart: Chart) => {
+          const ctx = chart.ctx;
+          const { chartArea } = chart;
+          const legendItems = [
+            { label: "Myöhässä yli 3 min", color: `red` },
+            { label: "Myöhässä 1-3 min", color: `orange` },
+            { label: "Ajallaan (±1 min)", color: `white` },
+            { label: "Etuajassa yli 1 min", color: `green` }
+          ];
+
+          const boxSize = 10;
+          const lineHeight = 14;
+          const padding = 8;
+          const legendWidth = 150;
+          const startX = Math.max(chartArea.left + padding, chartArea.right - legendWidth - padding);
+          const startY = chartArea.top + padding;
+
+          ctx.save();
+          ctx.font = "10px Noto Sans";
+          ctx.textBaseline = "middle";
+          legendItems.forEach((item, index) => {
+            const y = startY + index * lineHeight;
+            ctx.fillStyle = item.color;
+            ctx.fillRect(startX, y - boxSize / 2, boxSize, boxSize);
+            ctx.strokeStyle = "#a7a7a7";
+            ctx.lineWidth = 1;
+            ctx.strokeRect(startX + 0.5, y - boxSize / 2 + 0.5, boxSize - 1, boxSize - 1);
+            ctx.fillStyle = "#1a1a1a";
+            ctx.fillText(item.label, startX + boxSize + 6, y);
+          });
           ctx.restore();
         }
       }

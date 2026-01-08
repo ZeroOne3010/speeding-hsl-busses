@@ -120,16 +120,24 @@ export const mpsToKph = (mps: number): number => {
   return Math.round(mps * 3.6 * 10) / 10;
 };
 
+const offsetToColor = (offsetFromSchedule: number): string => {
+  if (offsetFromSchedule < -180) return "red";
+  if (offsetFromSchedule <= -60) return "orange";
+  if (offsetFromSchedule < 60) return "white";
+  return "green";
+};
+
 export const buildLabelsAndValues = (
-  observations: Pick<Observation, "speed" | "timestamp">[]
-): [string[], (number | null)[]] => {
+  observations: Pick<Observation, "speed" | "timestamp" | "offsetFromSchedule">[]
+): [string[], (number | null)[], string[]] => {
   const labelsWithGapsFilled: string[] = [];
   const valuesWithGaps: (number | null)[] = [];
+  const pointBackgroundColors: string[] = [];
   let nextExpectedTime: string | null = null;
 
   for (let i = 0; i < observations.length; i++) {
-    const observation: Pick<Observation, "speed" | "timestamp"> = observations[i];
-    const observation2: Pick<Observation, "speed" | "timestamp"> = observations[i + 1];
+    const observation: Pick<Observation, "speed" | "timestamp" | "offsetFromSchedule"> = observations[i];
+    const observation2: Pick<Observation, "speed" | "timestamp" | "offsetFromSchedule"> = observations[i + 1];
 
     const date: Date = new Date(observation.timestamp * 1000);
     const time: string = dateToHhMmSs(date);
@@ -137,6 +145,7 @@ export const buildLabelsAndValues = (
     if (!observation2) {
       labelsWithGapsFilled.push(time);
       valuesWithGaps.push(observation.speed);
+      pointBackgroundColors.push(offsetToColor(observation.offsetFromSchedule));
       break;
     }
 
@@ -149,6 +158,7 @@ export const buildLabelsAndValues = (
 
     labelsWithGapsFilled.push(time);
     valuesWithGaps.push(observation.speed);
+    pointBackgroundColors.push(offsetToColor(observation.offsetFromSchedule));
 
     if (nextExpectedTime != time2) {
       const datestamp0Normalized: Date = new Date(date);
@@ -160,8 +170,9 @@ export const buildLabelsAndValues = (
 
         labelsWithGapsFilled.push(nextExpectedTime);
         valuesWithGaps.push(null);
+        pointBackgroundColors.push("transparent");
       }
     }
   }
-  return [labelsWithGapsFilled, valuesWithGaps];
+  return [labelsWithGapsFilled, valuesWithGaps, pointBackgroundColors];
 };
