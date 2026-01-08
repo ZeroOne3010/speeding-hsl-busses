@@ -7,12 +7,14 @@ import {
   DIRECTIONS,
   OPERATORS,
   SPEED_LIMIT_THRESHOLDS,
-  FINNISH_NUMBER_FORMAT
+  FINNISH_NUMBER_FORMAT,
+  mpsToKph
 } from "./constants";
 import { createPngChart } from "./graph";
 import { initializeBlueskySink } from "./sinks/bluesky";
+import { createConsoleDebugSink } from "./sinks/console-debug";
 import { createDiskSink } from "./sinks/disk";
-import { OutputSink } from "./sinks/types";
+import { ObservationSink, OutputSink } from "./sinks/types";
 
 const vehicles: Record<string, VehicleData> = {};
 const boundingBox = {
@@ -24,15 +26,6 @@ const boundingBox = {
 
 const mqtt = require("mqtt");
 const mqttClient = mqtt.connect("mqtts://mqtt.hsl.fi:8883");
-
-/**
- * Converts meters per second to kilometers per hour.
- * @param mps A number, m/s.
- * @returns A number, km/h.
- */
-const mpsToKph = (mps: number): number => {
-  return Math.round(mps * 3.6 * 10) / 10;
-};
 
 /**
  * Returns a descriptive object for the given compass angle.
@@ -50,9 +43,11 @@ const debugEnabled = process.env.DEBUG === 'true' || process.env.DEBUG === '1';
 const hasCredentials = Boolean(user && password);
 
 const sinks: OutputSink[] = [];
+const observationSinks: ObservationSink[] = [];
 
 mqttClient.on("connect", async function () {
   sinks.length = 0;
+  observationSinks.length = 0;
   const isDevImageMode = !hasCredentials && Boolean(devImageOutputDir);
   if (!hasCredentials && !isDevImageMode) {
     throw new Error(
@@ -61,6 +56,9 @@ mqttClient.on("connect", async function () {
   }
 
   console.log("Connected as", user || "dev-local-mode");
+  if (debugEnabled) {
+    observationSinks.push(createConsoleDebugSink());
+  }
   if (hasCredentials) {
     const bskySink = await initializeBlueskySink({ username: user as string, password: password as string });
     sinks.push(bskySink);
@@ -226,7 +224,7 @@ mqttClient.on("message", (topic: string, message: string) => {
   }
 
   const kilometersPerHour: number = mpsToKph(event.spd);
-  const observation = {
+  const observation: Observation = {
       latitude: event.lat,
       longitude: event.long,
       timestamp: event.tsi,
@@ -242,26 +240,10 @@ mqttClient.on("message", (topic: string, message: string) => {
     vehicles[vehicle].observations.push(observation);
   }
 
-  // Log each received vehicle positioning message to the console:
-  if (debugEnabled) {
-    console.debug(
-      event.tst +
-        "  Linja " +
-        event.desi.padStart(4, " ") +
-        ": " +
-        getDirectionForCompassAngle(event.hdg).arrow +
-        " (" +
-        event.hdg +
-        "°) " +
-        kilometersPerHour +
-        " km/h" +
-        "; " +
-        event.acc +
-        " m/s²; " +
-        (OPERATORS[event.oper]?.name || `N/A ("${event.oper}")`) +
-        ", auto " +
-        event.veh
-    );
+  if (observationSinks.length > 0) {
+    for (const sink of observationSinks) {
+      sink.handleObservation(event);
+    }
   }
 
 });

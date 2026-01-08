@@ -111,6 +111,15 @@ export const dateToHhMmSs = (date: Date): string => {
   return `${hours}:${minutes}:${seconds}`;
 };
 
+/**
+ * Converts meters per second to kilometers per hour.
+ * @param mps A number, m/s.
+ * @returns A number, km/h.
+ */
+export const mpsToKph = (mps: number): number => {
+  return Math.round(mps * 3.6 * 10) / 10;
+};
+
 export const buildLabelsAndValues = (
   observations: Pick<Observation, "speed" | "timestamp">[]
 ): [string[], (number | null)[]] => {
