@@ -1,8 +1,5 @@
 import { VehiclePositionMessage, VehicleData, Observation, StaticDirectionInfo } from "./types";
-import { BskyAgent } from "@atproto/api";
 import { setInterval } from "timers";
-import { promises as fs } from "fs";
-import path from "path";
 import {
   SPEED_LIMIT_KPH,
   BYGONE_VEHICLE_THRESHOLD,
@@ -13,6 +10,9 @@ import {
   FINNISH_NUMBER_FORMAT
 } from "./constants";
 import { createPngChart } from "./graph";
+import { initializeBlueskySink } from "./sinks/bluesky";
+import { createDiskSink } from "./sinks/disk";
+import { OutputSink } from "./sinks/types";
 
 const vehicles: Record<string, VehicleData> = {};
 const boundingBox = {
@@ -49,12 +49,6 @@ const devImageOutputDir = process.env.DEV_IMAGE_OUTPUT_DIR;
 const debugEnabled = process.env.DEBUG === 'true' || process.env.DEBUG === '1';
 const hasCredentials = Boolean(user && password);
 
-type OutputSink = {
-  name: string;
-  handle: (payload: { message: string; chartBuffer: Buffer; vehicleData: VehicleData }) => Promise<void>;
-  handleChartFailure?: (payload: { message: string; error: unknown }) => Promise<void>;
-};
-
 const sinks: OutputSink[] = [];
 
 mqttClient.on("connect", async function () {
@@ -67,55 +61,13 @@ mqttClient.on("connect", async function () {
   }
 
   console.log("Connected as", user || "dev-local-mode");
-  const bskyAgent = hasCredentials ? new BskyAgent({ service: "https://bsky.social" }) : null;
-  if (bskyAgent) {
-    await bskyAgent.login({ identifier: user as string, password: password as string });
-    sinks.push({
-      name: "bluesky",
-      handle: async ({ message, chartBuffer, vehicleData }) => {
-        const upload = await bskyAgent.uploadBlob(chartBuffer, { encoding: "image/png" });
-        const altText = `Bussin ${vehicleData.line} (${vehicleData.operatorName} auto ${vehicleData.vehicleNumber}) nopeuskäyrä. ${vehicleData.observations.length} mittauspistettä.`;
-        const post = await bskyAgent.post({
-          text: message,
-          embed: {
-            $type: "app.bsky.embed.images",
-            images: [{ image: upload.data.blob, alt: altText }]
-          }
-        });
-        const maxObservedSpeed = vehicleData.observations.reduce(
-          (max, observation) => (observation.speed > max ? observation.speed : max),
-          0
-        );
-
-        const BLUESKY_LIKE_SPEED_THRESHOLD: number = 50;
-        if (maxObservedSpeed >= BLUESKY_LIKE_SPEED_THRESHOLD) {
-          try {
-            await bskyAgent.like(post.uri, post.cid);
-          } catch (error) {
-            console.error(`Failed to like post ${post.uri}:`, error);
-          }
-        }
-      },
-      handleChartFailure: async ({ message }) => {
-        await bskyAgent.post({ text: message + " (Nopeuskäyrän muodostus epäonnistui. 🪲)" });
-      }
-    });
+  if (hasCredentials) {
+    const bskySink = await initializeBlueskySink({ username: user as string, password: password as string });
+    sinks.push(bskySink);
   }
 
   if (devImageOutputDir) {
-    const outputDir = devImageOutputDir;
-    sinks.push({
-      name: "disk",
-      handle: async ({ chartBuffer, vehicleData }) => {
-        await fs.mkdir(outputDir, { recursive: true });
-        const safeLine = vehicleData.line.replace(/[^\w.-]+/g, "_");
-        const lastTimestamp = vehicleData.observations.at(-1)?.timestamp ?? Math.round(Date.now() / 1000);
-        const fileName = `${safeLine}_${vehicleData.vehicleNumber}_${lastTimestamp}.png`;
-        const outputPath = path.join(outputDir, fileName);
-        await fs.writeFile(outputPath, chartBuffer);
-        console.log(`Saved dev image to ${outputPath}`);
-      }
-    });
+    sinks.push(createDiskSink({ outputDir: devImageOutputDir }));
   }
 
   if (sinks.length === 0) {
