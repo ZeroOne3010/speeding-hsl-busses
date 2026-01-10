@@ -37,6 +37,7 @@ export const createPngChart = async (vehicleData: VehicleData): Promise<Buffer> 
           borderColor: borderColors,
           pointBackgroundColor: pointBackgroundColors,
           borderWidth: 1,
+          pointRadius: 3.5,
           segment: {
             borderColor: lineColor
           }
