@@ -231,7 +231,8 @@ mqttClient.on("message", (topic: string, message: string) => {
       speed: kilometersPerHour,
       direction: event.hdg,
       acceleration: event.acc,
-      offsetFromSchedule: event.dl
+      offsetFromSchedule: event.dl,
+      gps: event.loc === "GPS"
     };
   if(event.acc > 1.5) {
     // This must be a measurement error due to excessive acceleration, skip it.

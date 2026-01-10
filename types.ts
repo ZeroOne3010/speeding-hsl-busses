@@ -41,6 +41,7 @@ export type Observation = {
   direction: number;
   acceleration: number;
   offsetFromSchedule: number;
+  gps: boolean;
 };
 
 export type StaticDirectionInfo = {

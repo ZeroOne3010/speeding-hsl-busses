@@ -32,7 +32,11 @@ export const createConsoleDebugSink = (): ObservationSink => {
           " m/s²; " +
           operatorName +
           ", auto " +
-          vehicleNumber
+          vehicleNumber +
+          "; Sijaintitiedon tyyppi: " +
+          event.loc +
+          "; Aikataulu: " +
+          event.dl + " s"
       );
     }
   };

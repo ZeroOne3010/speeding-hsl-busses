@@ -33,7 +33,8 @@ const buildObservations = (): Observation[] => {
       speed: Math.round(speed * 10) / 10,
       direction: 90,
       acceleration: 0.6,
-      offsetFromSchedule
+      offsetFromSchedule,
+      gps: i > 50 && i < 60
     });
   }
 
