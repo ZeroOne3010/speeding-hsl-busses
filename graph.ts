@@ -94,7 +94,7 @@ export const createPngChart = async (vehicleData: VehicleData): Promise<Buffer> 
           const padding = 8;
           const legendWidth = 150;
           const startX = Math.max(chartArea.left + padding, chartArea.right - legendWidth - padding);
-          const startY = chartArea.top + padding;
+          const startY = padding * 2;
 
           ctx.save();
           ctx.font = "10px Noto Sans";
