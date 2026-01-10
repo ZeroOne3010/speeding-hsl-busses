@@ -1,10 +1,10 @@
 import { Observation, VehicleData } from "./types";
 import { ChartJSNodeCanvas, ChartCallback } from "chartjs-node-canvas";
 import { Chart, ChartConfiguration, ScriptableLineSegmentContext, ScriptableScaleContext } from "chart.js";
-import { buildLabelsAndValues, SPEED_LIMIT_KPH } from "./constants";
+import { buildLabelsAndValues, scheduleOffsetColors, SPEED_LIMIT_KPH } from "./constants";
 
-const BLUE: string = "0, 38, 255";
-const RED: string = "234, 15, 23";
+const LINE_COLOR_NOT_SPEEDING: string = "#333333";
+const LINE_COLOR_SPEEDING: string = "#810000ff";
 
 const width = 1024;
 const height = 576;
@@ -21,11 +21,9 @@ export const createPngChart = async (vehicleData: VehicleData): Promise<Buffer> 
   const [labels, values, pointBackgroundColors]: [string[], (number | null)[], string[]] =
     buildLabelsAndValues(observations);
 
-  const borderColors: string[] = values.map((value: number | null) =>
-    value != null && value > SPEED_LIMIT_KPH ? `rgba(${RED}, 1)` : `rgba(${BLUE}, 1)`
-  );
+  const borderColors: string = "#333333";
   const lineColor = (ctx: ScriptableLineSegmentContext): string =>
-    (ctx.p0.parsed.y != null && ctx.p0.parsed.y > SPEED_LIMIT_KPH) || (ctx.p1.parsed.y != null && ctx.p1.parsed.y > SPEED_LIMIT_KPH) ? `rgba(${RED}, 1)` : `rgba(${BLUE}, 1)`;
+    (ctx.p0.parsed.y != null && ctx.p0.parsed.y > SPEED_LIMIT_KPH) || (ctx.p1.parsed.y != null && ctx.p1.parsed.y > SPEED_LIMIT_KPH) ? LINE_COLOR_SPEEDING : LINE_COLOR_NOT_SPEEDING;
 
   const configuration: ChartConfiguration = {
     type: "line",
@@ -84,10 +82,10 @@ export const createPngChart = async (vehicleData: VehicleData): Promise<Buffer> 
           const ctx = chart.ctx;
           const { chartArea } = chart;
           const legendItems = [
-            { label: "Myöhässä yli 3 min", color: `red` },
-            { label: "Myöhässä 1-3 min", color: `orange` },
-            { label: "Ajallaan (±1 min)", color: `white` },
-            { label: "Etuajassa yli 1 min", color: `green` }
+            { label: "Myöhässä yli 4 min", color: scheduleOffsetColors["very late"] },
+            { label: "Myöhässä 2-4 min", color: scheduleOffsetColors["late"] },
+            { label: "Ajallaan (±2 min)", color: scheduleOffsetColors["on time"] },
+            { label: "Etuajassa yli 2 min", color: scheduleOffsetColors["early"] }
           ];
 
           const boxSize = 10;
@@ -104,7 +102,7 @@ export const createPngChart = async (vehicleData: VehicleData): Promise<Buffer> 
             const y = startY + index * lineHeight;
             ctx.fillStyle = item.color;
             ctx.fillRect(startX, y - boxSize / 2, boxSize, boxSize);
-            ctx.strokeStyle = "#a7a7a7";
+            ctx.strokeStyle = "#333333";
             ctx.lineWidth = 1;
             ctx.strokeRect(startX + 0.5, y - boxSize / 2 + 0.5, boxSize - 1, boxSize - 1);
             ctx.fillStyle = "#1a1a1a";

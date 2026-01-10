@@ -120,11 +120,18 @@ export const mpsToKph = (mps: number): number => {
   return Math.round(mps * 3.6 * 10) / 10;
 };
 
+export const scheduleOffsetColors: Record<string, string> = {
+  "very late": "#f68c8c",
+  "late": "#f7c6a3",
+  "on time": "#e6e6e6",
+  "early": "#a8d5a8"
+};
+
 const offsetToColor = (offsetFromSchedule: number): string => {
-  if (offsetFromSchedule < -180) return "red";
-  if (offsetFromSchedule <= -60) return "orange";
-  if (offsetFromSchedule < 60) return "white";
-  return "green";
+  if (offsetFromSchedule <= -240) return scheduleOffsetColors["very late"];
+  if (offsetFromSchedule <= -120) return scheduleOffsetColors["late"];
+  if (offsetFromSchedule < 120) return scheduleOffsetColors["on time"];
+  return scheduleOffsetColors["early"];
 };
 
 export const buildLabelsAndValues = (
