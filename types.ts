@@ -30,6 +30,7 @@ export type VehicleData = {
   operatorName: string;
   vehicleNumber: number;
   line: string;
+  doorOpenTimestamp?: number;
   observations: Observation[];
 };
 
@@ -42,6 +43,7 @@ export type Observation = {
   acceleration: number;
   offsetFromSchedule: number;
   gps: boolean;
+  doorsOpen: boolean;
 };
 
 export type StaticDirectionInfo = {

@@ -18,7 +18,7 @@ const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback }
 
 export const createPngChart = async (vehicleData: VehicleData): Promise<Buffer> => {
   const observations: Observation[] = vehicleData.observations;
-  const [labels, values, pointBackgroundColors]: [string[], (number | null)[], string[]] =
+  const [labels, values, pointBackgroundColors, doorOpenFlags]: [string[], (number | null)[], string[], boolean[]] =
     buildLabelsAndValues(observations);
 
   const borderColors: string = "#333333";
@@ -74,6 +74,47 @@ export const createPngChart = async (vehicleData: VehicleData): Promise<Buffer> 
           ctx.save();
           ctx.fillStyle = "white";
           ctx.fillRect(0, 0, width, height);
+          ctx.restore();
+        }
+      },
+      {
+        id: "door-open-shading",
+        beforeDraw: (chart: Chart) => {
+          const ctx = chart.ctx;
+          const { chartArea, scales } = chart;
+          const xScale = scales.x;
+          if (!xScale) {
+            return;
+          }
+
+          const getLeftEdge = (index: number): number => {
+            const current = xScale.getPixelForValue(index);
+            const prev = index > 0 ? xScale.getPixelForValue(index - 1) : current;
+            return current - (current - prev) / 2;
+          };
+
+          const getRightEdge = (index: number): number => {
+            const current = xScale.getPixelForValue(index);
+            const next = index < labels.length - 1 ? xScale.getPixelForValue(index + 1) : current;
+            return current + (next - current) / 2;
+          };
+
+          ctx.save();
+          ctx.fillStyle = "#eaeaeaff";
+          let rangeStart: number | null = null;
+          for (let i = 0; i < doorOpenFlags.length; i++) {
+            if (doorOpenFlags[i] && rangeStart === null) {
+              rangeStart = i;
+            }
+            const isRangeEnd = rangeStart !== null && (!doorOpenFlags[i] || i === doorOpenFlags.length - 1);
+            if (isRangeEnd) {
+              const rangeEnd = doorOpenFlags[i] ? i : i - 1;
+              const left = getLeftEdge(rangeStart!);
+              const right = getRightEdge(rangeEnd);
+              ctx.fillRect(left, chartArea.top, right - left, chartArea.bottom - chartArea.top);
+              rangeStart = null;
+            }
+          }
           ctx.restore();
         }
       },

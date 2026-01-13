@@ -34,7 +34,8 @@ const buildObservations = (): Observation[] => {
       direction: 90,
       acceleration: 0.6,
       offsetFromSchedule,
-      gps: i > 50 && i < 60
+      gps: i > 50 && i < 60,
+      doorsOpen: (i > 10 && i < 20) || (i > 84 && i < 89)
     });
   }
 

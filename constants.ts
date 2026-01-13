@@ -135,24 +135,28 @@ const offsetToColor = (offsetFromSchedule: number): string => {
 };
 
 export const buildLabelsAndValues = (
-  observations: Pick<Observation, "speed" | "timestamp" | "offsetFromSchedule">[]
-): [string[], (number | null)[], string[]] => {
+  observations: Pick<Observation, "speed" | "timestamp" | "offsetFromSchedule" | "doorsOpen">[]
+): [string[], (number | null)[], string[], boolean[]] => {
   const labelsWithGapsFilled: string[] = [];
   const valuesWithGaps: (number | null)[] = [];
   const pointBackgroundColors: string[] = [];
+  const doorOpenFlags: boolean[] = [];
   let nextExpectedTime: string | null = null;
+  let lastDoorsOpen: boolean = false;
 
   for (let i = 0; i < observations.length; i++) {
-    const observation: Pick<Observation, "speed" | "timestamp" | "offsetFromSchedule"> = observations[i];
-    const observation2: Pick<Observation, "speed" | "timestamp" | "offsetFromSchedule"> = observations[i + 1];
+    const observation: Pick<Observation, "speed" | "timestamp" | "offsetFromSchedule" | "doorsOpen"> = observations[i];
+    const observation2: Pick<Observation, "speed" | "timestamp" | "offsetFromSchedule" | "doorsOpen"> = observations[i + 1];
 
     const date: Date = new Date(observation.timestamp * 1000);
     const time: string = dateToHhMmSs(date);
+    lastDoorsOpen = observation.doorsOpen;
 
     if (!observation2) {
       labelsWithGapsFilled.push(time);
       valuesWithGaps.push(observation.speed);
       pointBackgroundColors.push(offsetToColor(observation.offsetFromSchedule));
+      doorOpenFlags.push(lastDoorsOpen);
       break;
     }
 
@@ -166,6 +170,7 @@ export const buildLabelsAndValues = (
     labelsWithGapsFilled.push(time);
     valuesWithGaps.push(observation.speed);
     pointBackgroundColors.push(offsetToColor(observation.offsetFromSchedule));
+    doorOpenFlags.push(lastDoorsOpen);
 
     if (nextExpectedTime != time2) {
       const datestamp0Normalized: Date = new Date(date);
@@ -178,8 +183,9 @@ export const buildLabelsAndValues = (
         labelsWithGapsFilled.push(nextExpectedTime);
         valuesWithGaps.push(null);
         pointBackgroundColors.push("transparent");
+        doorOpenFlags.push(lastDoorsOpen);
       }
     }
   }
-  return [labelsWithGapsFilled, valuesWithGaps, pointBackgroundColors];
+  return [labelsWithGapsFilled, valuesWithGaps, pointBackgroundColors, doorOpenFlags];
 };

@@ -159,54 +159,61 @@ mqttClient.on("connect", async function () {
     }
   };
 
-  mqttClient.subscribe(
-    [
-      "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/31/#",
-      "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/32/#",
-      "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/33/#",
-      "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/34/#",
-      "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/35/#",
-      "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/41/#",
-      "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/42/#",
-      "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/43/#",
-      "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/44/#",
-      "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/45/#",
-      "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/51/#",
-      "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/52/#",
-      "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/53/#",
-      "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/54/#",
-      "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/55/#",
-      "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/61/#",
-      "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/62/#",
-      "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/63/#",
-      "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/64/#",
-      "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/65/#",
-      "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/71/#",
-      "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/72/#",
-      "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/73/#",
-      "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/74/#",
-      "/hfp/v2/journey/ongoing/vp/bus/+/+/+/+/+/+/+/+/60;24/29/49/75/#"
-    ],
-    () => {
-      console.log("Subscribed to topic(s)");
-      const timeout = setInterval(bygoneVehicleCheck, INTERVAL);
-    }
+  const topicSuffixes = [
+    "/bus/+/+/+/+/+/+/+/+/60;24/29/49/31/#",
+    "/bus/+/+/+/+/+/+/+/+/60;24/29/49/32/#",
+    "/bus/+/+/+/+/+/+/+/+/60;24/29/49/33/#",
+    "/bus/+/+/+/+/+/+/+/+/60;24/29/49/34/#",
+    "/bus/+/+/+/+/+/+/+/+/60;24/29/49/35/#",
+    "/bus/+/+/+/+/+/+/+/+/60;24/29/49/41/#",
+    "/bus/+/+/+/+/+/+/+/+/60;24/29/49/42/#",
+    "/bus/+/+/+/+/+/+/+/+/60;24/29/49/43/#",
+    "/bus/+/+/+/+/+/+/+/+/60;24/29/49/44/#",
+    "/bus/+/+/+/+/+/+/+/+/60;24/29/49/45/#",
+    "/bus/+/+/+/+/+/+/+/+/60;24/29/49/51/#",
+    "/bus/+/+/+/+/+/+/+/+/60;24/29/49/52/#",
+    "/bus/+/+/+/+/+/+/+/+/60;24/29/49/53/#",
+    "/bus/+/+/+/+/+/+/+/+/60;24/29/49/54/#",
+    "/bus/+/+/+/+/+/+/+/+/60;24/29/49/55/#",
+    "/bus/+/+/+/+/+/+/+/+/60;24/29/49/61/#",
+    "/bus/+/+/+/+/+/+/+/+/60;24/29/49/62/#",
+    "/bus/+/+/+/+/+/+/+/+/60;24/29/49/63/#",
+    "/bus/+/+/+/+/+/+/+/+/60;24/29/49/64/#",
+    "/bus/+/+/+/+/+/+/+/+/60;24/29/49/65/#",
+    "/bus/+/+/+/+/+/+/+/+/60;24/29/49/71/#",
+    "/bus/+/+/+/+/+/+/+/+/60;24/29/49/72/#",
+    "/bus/+/+/+/+/+/+/+/+/60;24/29/49/73/#",
+    "/bus/+/+/+/+/+/+/+/+/60;24/29/49/74/#",
+    "/bus/+/+/+/+/+/+/+/+/60;24/29/49/75/#"
+  ];
+  const topics = ["vp", "doo", "doc"].flatMap((eventType) =>
+    topicSuffixes.map((suffix) => `/hfp/v2/journey/ongoing/${eventType}${suffix}`)
   );
+  mqttClient.subscribe(topics, () => {
+    console.log("Subscribed to topic(s)");
+    const timeout = setInterval(bygoneVehicleCheck, INTERVAL);
+  });
 });
 
 mqttClient.on("message", (topic: string, message: string) => {
-  const event: VehiclePositionMessage = JSON.parse(message)?.VP;
-  if (!event) {
+  const parsedMessage = JSON.parse(message) as { VP?: VehiclePositionMessage; DOO?: VehiclePositionMessage; DOC?: VehiclePositionMessage };
+  const event: VehiclePositionMessage | undefined = parsedMessage?.VP ?? parsedMessage?.DOO ?? parsedMessage?.DOC;
+  const eventType = parsedMessage?.VP ? "vp" : parsedMessage?.DOO ? "doo" : parsedMessage?.DOC ? "doc" : null;
+  if (!event || !eventType) {
     return;
   }
 
   // Filter by bounding box, the subscribed topics aren't necessarily that precise.
-  if (
-    event.lat > boundingBox.topLat ||
-    event.long < boundingBox.leftLong ||
-    event.lat < boundingBox.bottomLat ||
-    event.long > boundingBox.rightLong
-  ) {
+  if (typeof event.lat === "number" && typeof event.long === "number") {
+    if (
+      event.lat > boundingBox.topLat ||
+      event.long < boundingBox.leftLong ||
+      event.lat < boundingBox.bottomLat ||
+      event.long > boundingBox.rightLong
+    ) {
+      return;
+    }
+  } else if (eventType === "vp") {
     return;
   }
 
@@ -223,6 +230,16 @@ mqttClient.on("message", (topic: string, message: string) => {
     } as VehicleData;
   }
 
+  if (eventType === "doo") {
+    vehicles[vehicle].doorOpenTimestamp = event.tsi;
+    return;
+  }
+
+  if (eventType === "doc") {
+    delete vehicles[vehicle].doorOpenTimestamp;
+    return;
+  }
+
   const kilometersPerHour: number = mpsToKph(event.spd);
   const observation: Observation = {
       latitude: event.lat,
@@ -232,7 +249,8 @@ mqttClient.on("message", (topic: string, message: string) => {
       direction: event.hdg,
       acceleration: event.acc,
       offsetFromSchedule: event.dl,
-      gps: event.loc === "GPS"
+      gps: event.loc === "GPS",
+      doorsOpen: Boolean(vehicles[vehicle].doorOpenTimestamp)
     };
   if(event.acc > 1.5) {
     // This must be a measurement error due to excessive acceleration, skip it.
