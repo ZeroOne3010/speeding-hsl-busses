@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/index.ts",
   "scripts": {
-    "test": "node --test --require ts-node/register constants.test.ts",
+    "test": "node --test --require ts-node/register",
     "lint": "eslint src",
     "dev": "node --env-file=.env -r ts-node/register index.ts",
     "dev-local": "cross-env DEBUG=true DEV_IMAGE_OUTPUT_DIR=./dev-output node -r ts-node/register index.ts",
@@ -17,6 +17,7 @@
   "license": "MIT",
   "dependencies": {
     "@atproto/api": "^0.13.0",
+    "better-sqlite3": "^11.5.0",
     "chart.js": "^4.5.1",
     "chartjs-node-canvas": "^5.0.0",
     "mqtt": "^4.3.7"

@@ -48,6 +48,7 @@ Botti, joka kertoo Blueskyhin [@puksunbussit.bluesky.bot](https://bsky.app/profi
 
 Ensure `ts-node` is installed: `npm install -g ts-node`. Then build with `npm install` and run with `npm start` for production or `npm dev` for development. Run tests with `npm test`.
 Create an app password for the bot and then fill in the Bluesky secrets into the `.env` file for development mode or environment variables in production mode.
+SQLite persistence defaults to `/data/hsl-bus-observations.db` on Fly.io. Override the path locally with `SQLITE_DB_PATH`.
 
 Uses the Digitransit API: https://digitransit.fi/en/developers/apis/5-realtime-api/vehicle-positions/high-frequency-positioning/
 
@@ -56,4 +57,3 @@ Relies on the following libraries:
 * MQTT.js: [GitHub](https://github.com/mqttjs/MQTT.js) / [npm](https://www.npmjs.com/package/mqtt)
 * AT Protocol API: [GitHub](https://github.com/bluesky-social/atproto) / [npm](https://www.npmjs.com/package/@atproto/api)
 * chartjs-node-canvas: [GitHub](https://github.com/SeanSobey/ChartjsNodeCanvas) / [npm](https://www.npmjs.com/package/chartjs-node-canvas)
-
