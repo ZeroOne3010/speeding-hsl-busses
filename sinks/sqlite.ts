@@ -49,7 +49,7 @@ export const createSqliteSink = ({ dbPath }: SqliteSinkOptions): OutputSink => {
     try {
       await fs.mkdir(path.dirname(dbPath), { recursive: true });
       db = new Database(dbPath);
-      db.pragma("journal_mode = WAL");
+      db.pragma("journal_mode = DELETE");
       db.pragma("synchronous = NORMAL");
       db.exec(`
         CREATE TABLE IF NOT EXISTS buses (
