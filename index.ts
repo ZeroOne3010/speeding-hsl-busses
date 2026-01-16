@@ -14,6 +14,7 @@ import { createPngChart } from "./graph";
 import { initializeBlueskySink } from "./sinks/bluesky";
 import { createConsoleDebugSink } from "./sinks/console-debug";
 import { createDiskSink } from "./sinks/disk";
+import { createSqliteSink } from "./sinks/sqlite";
 import { ObservationSink, OutputSink } from "./sinks/types";
 
 const vehicles: Record<string, VehicleData> = {};
@@ -39,6 +40,7 @@ const getDirectionForCompassAngle = (angle: number): StaticDirectionInfo => {
 const user = process.env.BLUESKY_USERNAME;
 const password = process.env.BLUESKY_PASSWORD;
 const devImageOutputDir = process.env.DEV_IMAGE_OUTPUT_DIR;
+const sqliteDbPath = process.env.SQLITE_DB_PATH ?? "/data/hsl-bus-observations.db";
 const debugEnabled = process.env.DEBUG === 'true' || process.env.DEBUG === '1';
 const hasCredentials = Boolean(user && password);
 
@@ -49,12 +51,6 @@ mqttClient.on("connect", async function () {
   sinks.length = 0;
   observationSinks.length = 0;
   const isDevImageMode = !hasCredentials && Boolean(devImageOutputDir);
-  if (!hasCredentials && !isDevImageMode) {
-    throw new Error(
-      "BLUESKY_USERNAME and BLUESKY_PASSWORD must be set, or define DEV_IMAGE_OUTPUT_DIR to enable dev image mode!"
-    );
-  }
-
   console.log("Connected as", user || "dev-local-mode");
   if (debugEnabled) {
     observationSinks.push(createConsoleDebugSink());
@@ -67,6 +63,8 @@ mqttClient.on("connect", async function () {
   if (devImageOutputDir) {
     sinks.push(createDiskSink({ outputDir: devImageOutputDir }));
   }
+
+  sinks.push(createSqliteSink({ dbPath: sqliteDbPath }));
 
   if (sinks.length === 0) {
     throw new Error("No output sinks configured. Check BLUESKY_USERNAME/BLUESKY_PASSWORD or DEV_IMAGE_OUTPUT_DIR.");
