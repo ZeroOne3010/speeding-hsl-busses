@@ -48,8 +48,15 @@ test("sqlite sink persists buses and observations", async () => {
   await sink.handle({ message: "ignored", chartBuffer: Buffer.alloc(0), vehicleData });
 
   const db = new Database(dbPath, { readonly: true });
-  const busRow = db.prepare("SELECT * FROM buses").get();
-  const observationRows = db.prepare("SELECT * FROM observations ORDER BY timestamp").all();
+  const busRow = db.prepare("SELECT * FROM buses").get() as {
+    line: string;
+    vehicle_number: number;
+    observation_count: number;
+  };
+  const observationRows = db.prepare("SELECT * FROM observations ORDER BY timestamp").all() as Array<{
+    speed_kph: number;
+    doors_open: number;
+  }>;
 
   assert.equal(busRow.line, "55");
   assert.equal(busRow.vehicle_number, 123);
