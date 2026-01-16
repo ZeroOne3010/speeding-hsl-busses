@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/index.ts",
   "scripts": {
-    "test": "node --test --require ts-node/register",
+    "test": "node --test --require ts-node/register *.test.ts sinks/*.test.ts",
     "lint": "eslint src",
     "dev": "node --env-file=.env -r ts-node/register index.ts",
     "dev-local": "cross-env DEBUG=true DEV_IMAGE_OUTPUT_DIR=./dev-output node -r ts-node/register index.ts",
@@ -23,6 +23,7 @@
     "mqtt": "^4.3.7"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
     "@typescript-eslint/eslint-plugin": "^5.36.2",
     "@typescript-eslint/parser": "^5.36.2",
     "cross-env": "^10.1.0",
