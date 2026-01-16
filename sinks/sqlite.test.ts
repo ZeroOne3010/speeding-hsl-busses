@@ -13,6 +13,7 @@ const createVehicleData = (): VehicleData => ({
   operatorName: "Test Operator",
   vehicleNumber: 123,
   line: "55",
+  direction: "northbound",
   observations: [
     {
       latitude: 60.1,
@@ -52,6 +53,7 @@ test("sqlite sink persists buses and observations", async () => {
     line: string;
     vehicle_number: number;
     observation_count: number;
+    direction: string;
   };
   const observationRows = db.prepare("SELECT * FROM observations ORDER BY timestamp").all() as Array<{
     speed_kph: number;
@@ -61,6 +63,7 @@ test("sqlite sink persists buses and observations", async () => {
   assert.equal(busRow.line, "55");
   assert.equal(busRow.vehicle_number, 123);
   assert.equal(busRow.observation_count, 2);
+  assert.equal(busRow.direction, "N");
   assert.equal(observationRows.length, 2);
   assert.equal(observationRows[0].speed_kph, 35);
   assert.equal(observationRows[1].doors_open, 1);

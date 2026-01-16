@@ -48,6 +48,7 @@ const graphTestVehicleData: VehicleData = {
   operatorName: "Testiauto Oy",
   vehicleNumber: 33,
   line: "123",
+  direction: "northbound",
   observations: buildObservations()
 };
 

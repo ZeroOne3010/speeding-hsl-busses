@@ -1,4 +1,4 @@
-import { VehiclePositionMessage, VehicleData, Observation, StaticDirectionInfo } from "./types";
+import { VehiclePositionMessage, VehicleData, Observation, StaticDirectionInfo, BusDirection } from "./types";
 import { setInterval } from "timers";
 import {
   SPEED_LIMIT_KPH,
@@ -35,6 +35,11 @@ const mqttClient = mqtt.connect("mqtts://mqtt.hsl.fi:8883");
  */
 const getDirectionForCompassAngle = (angle: number): StaticDirectionInfo => {
   return DIRECTIONS[Math.floor(((angle % 360) + 22.5) / 45)];
+};
+
+const getDirectionFromBoundingBox = (latitude: number): BusDirection => {
+  const midLatitude = (boundingBox.topLat + boundingBox.bottomLat) / 2;
+  return latitude <= midLatitude ? "northbound" : "southbound";
 };
 
 const user = process.env.BLUESKY_USERNAME;
@@ -217,6 +222,9 @@ mqttClient.on("message", (topic: string, message: string) => {
 
   const vehicle: string = event.oper + "_" + event.veh;
   if (!vehicles[vehicle]) {
+    if (eventType !== "vp") {
+      return;
+    }
     // This is a new vehicle that just appeared
     vehicles[vehicle] = {
       startTime: event.start,
@@ -224,6 +232,7 @@ mqttClient.on("message", (topic: string, message: string) => {
       operatorName: OPERATORS[event.oper]?.name || "N/A",
       vehicleNumber: event.veh,
       line: event.desi,
+      direction: getDirectionFromBoundingBox(event.lat),
       observations: [] as Observation[]
     } as VehicleData;
   }
