@@ -34,7 +34,7 @@ FROM base
 
 # Install fonts for server-side chart rendering
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y fontconfig fonts-noto-core && \
+    apt-get install --no-install-recommends -y fontconfig fonts-noto-core supervisor && \
     rm -rf /var/lib/apt/lists/*
 
 # Install only production dependencies
@@ -44,6 +44,9 @@ RUN npm ci --omit=dev
 # Copy built application
 COPY --from=build /app/dist /app/dist
 
+# Copy supervisor configuration
+COPY supervisord.conf /etc/supervisor/supervisord.conf
+
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 3000
-CMD [ "npm", "run", "start" ]
+CMD [ "supervisord", "-c", "/etc/supervisor/supervisord.conf" ]
