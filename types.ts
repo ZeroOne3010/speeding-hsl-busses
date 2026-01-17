@@ -30,6 +30,7 @@ export type VehicleData = {
   operatorName: string;
   vehicleNumber: number;
   line: string;
+  direction: BusDirection;
   doorOpenTimestamp?: number;
   observations: Observation[];
 };
@@ -50,3 +51,5 @@ export type StaticDirectionInfo = {
   arrow: string;
   description: string;
 };
+
+export type BusDirection = "northbound" | "southbound";

@@ -14,12 +14,13 @@ export const createSqliteSink = ({ dbPath }: SqliteSinkOptions): OutputSink => {
   let initError: unknown = null;
   let db: Database.Database | null = null;
   let insertBus:
-    | Database.Statement<{
+      | Database.Statement<{
         line: string;
         operator_code: number;
         operator_name: string;
         vehicle_number: number;
         start_time: string;
+        direction: string;
         observation_count: number;
         max_speed_kph: number;
         first_observed_at: number | null;
@@ -59,6 +60,7 @@ export const createSqliteSink = ({ dbPath }: SqliteSinkOptions): OutputSink => {
           operator_name TEXT NOT NULL,
           vehicle_number INTEGER NOT NULL,
           start_time TEXT,
+          direction TEXT,
           observation_count INTEGER NOT NULL,
           max_speed_kph REAL NOT NULL,
           first_observed_at INTEGER,
@@ -80,6 +82,11 @@ export const createSqliteSink = ({ dbPath }: SqliteSinkOptions): OutputSink => {
           FOREIGN KEY (bus_id) REFERENCES buses(id) ON DELETE CASCADE
         );
       `);
+      const busColumns = db.prepare("PRAGMA table_info(buses)").all() as Array<{ name: string }>;
+      const hasDirectionColumn = busColumns.some((column) => column.name === "direction");
+      if (!hasDirectionColumn) {
+        db.exec("ALTER TABLE buses ADD COLUMN direction TEXT");
+      }
       insertBus = db.prepare(`
         INSERT INTO buses (
           line,
@@ -87,6 +94,7 @@ export const createSqliteSink = ({ dbPath }: SqliteSinkOptions): OutputSink => {
           operator_name,
           vehicle_number,
           start_time,
+          direction,
           observation_count,
           max_speed_kph,
           first_observed_at,
@@ -97,6 +105,7 @@ export const createSqliteSink = ({ dbPath }: SqliteSinkOptions): OutputSink => {
           @operator_name,
           @vehicle_number,
           @start_time,
+          @direction,
           @observation_count,
           @max_speed_kph,
           @first_observed_at,
@@ -172,6 +181,7 @@ export const createSqliteSink = ({ dbPath }: SqliteSinkOptions): OutputSink => {
               operator_name: vehicleData.operatorName,
               vehicle_number: vehicleData.vehicleNumber,
               start_time: vehicleData.startTime,
+              direction: vehicleData.direction === "northbound" ? "N" : "S",
               observation_count: observationCount,
               max_speed_kph: maxSpeed,
               first_observed_at: firstObservation?.timestamp ?? null,
