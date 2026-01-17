@@ -222,9 +222,6 @@ mqttClient.on("message", (topic: string, message: string) => {
 
   const vehicle: string = event.oper + "_" + event.veh;
   if (!vehicles[vehicle]) {
-    if (eventType !== "vp") {
-      return;
-    }
     // This is a new vehicle that just appeared
     vehicles[vehicle] = {
       startTime: event.start,
